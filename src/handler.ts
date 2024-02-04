@@ -6,6 +6,8 @@ import { PaymentDynamoRepository } from './infra/repository/payment.dynamo.repos
 export const handler = async (event: any, _context: any, callback: any) => {
   try {
     if (event?.requestContext?.http?.method === 'OPTIONS') {
+      console.log('Metodo OPTIONS ');
+
       callback(null, {
         statusCode: 200,
         headers: {
@@ -18,11 +20,11 @@ export const handler = async (event: any, _context: any, callback: any) => {
       return;
     }
 
-    console.log('Ingresa el siguiente payload: ', JSON.stringify(event.body, null, 2));
-    // console.log('Ingresa el siguiente payload: ', JSON.stringify(event.detail));
+    // console.log('Ingresa el siguiente payload: ', JSON.stringify(event.body, null, 2));
+    console.log('Ingresa el siguiente payload: ', JSON.stringify(event.detail));
 
-    const payload = JSON.parse(event.body);
-    // const payload = event.detail
+    //const payload = JSON.parse(event.body);
+    const payload = event.detail;
 
     const dynamoClient = new DynamoDBClient({
       // credentials: {
