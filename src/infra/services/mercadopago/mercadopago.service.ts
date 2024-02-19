@@ -1,5 +1,6 @@
-import { MercadopagoPreference, IMercadoPagoService } from './interface';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
+
+import { MercadopagoPreference, IMercadoPagoService } from './interface';
 
 export class MercadoPagoService implements IMercadoPagoService {
   private client = new MercadoPagoConfig({

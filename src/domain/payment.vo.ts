@@ -22,6 +22,7 @@ export class PaymentVO {
     const precio_total = items.reduce((acc, item) => acc + item.unit_price * item.quantity, 0);
 
     return {
+      auto_return: 'approved',
       back_urls: {
         failure: `${APP_URL}/payment-callback-failure?external_reference=${id}`,
         pending: `${APP_URL}/payment-callback-pending?external_reference=${id}`,

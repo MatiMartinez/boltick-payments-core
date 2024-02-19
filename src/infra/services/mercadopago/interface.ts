@@ -3,6 +3,7 @@ export interface IMercadoPagoService {
 }
 
 export interface MercadopagoPreference {
+  auto_return?: 'approved' | 'all';
   back_urls: BackUrls;
   external_reference: string;
   items: Item[];

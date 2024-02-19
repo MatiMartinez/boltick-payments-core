@@ -20,11 +20,10 @@ export const handler = async (event: any, _context: any, callback: any) => {
       return;
     }
 
-    // console.log('Ingresa el siguiente payload: ', JSON.stringify(event.body, null, 2));
-    console.log('Ingresa el siguiente payload: ', JSON.stringify(event.detail));
-
     //const payload = JSON.parse(event.body);
     const payload = event.detail;
+
+    console.log('Ingresa el siguiente payload: ', JSON.stringify(payload, null, 2));
 
     const dynamoClient = new DynamoDBClient({
       // credentials: {
