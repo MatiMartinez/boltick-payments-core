@@ -1,4 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+
 import { PaymentVO } from './domain/payment.vo';
 import { MercadoPagoService } from './infra/services/mercadopago/mercadopago.service';
 import { PaymentDynamoRepository } from './infra/repository/payment.dynamo.repository';
@@ -20,16 +21,11 @@ export const handler = async (event: any, _context: any, callback: any) => {
       return;
     }
 
-    //const payload = JSON.parse(event.body);
     const payload = event.detail;
 
     console.log('Ingresa el siguiente payload: ', JSON.stringify(payload, null, 2));
 
     const dynamoClient = new DynamoDBClient({
-      // credentials: {
-      //   accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
-      //   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
-      // },
       region: 'us-east-1',
     });
 

@@ -1,4 +1,5 @@
 import { v4 as uuid } from 'uuid';
+
 import { PaymentEntity } from './payment.entity';
 import { MercadopagoPreference } from '../infra/services/mercadopago/interface';
 
@@ -24,9 +25,9 @@ export class PaymentVO {
     return {
       auto_return: 'approved',
       back_urls: {
-        failure: `${APP_URL}/payment-callback-failure?external_reference=${id}`,
-        pending: `${APP_URL}/payment-callback-pending?external_reference=${id}`,
-        success: `${APP_URL}/payment-callback-success?external_reference=${id}`,
+        failure: `${APP_URL}/payment-callback-failure?external_reference=${id}&amount=${precio_total}`,
+        pending: `${APP_URL}/payment-callback-pending?external_reference=${id}&amount=${precio_total}`,
+        success: `${APP_URL}/payment-callback-success?external_reference=${id}&amount=${precio_total}`,
       },
       external_reference: id,
       items: [

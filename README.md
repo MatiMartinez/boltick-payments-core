@@ -1,3 +1,11 @@
+# Instrucciones
+
+## Local
+
+Configurar Access y Secret de AWS
+
+## Subir lambda
+
 npm install
 
 npm run build

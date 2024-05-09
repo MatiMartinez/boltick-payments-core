@@ -1,7 +1,8 @@
-import { PaymentEntity } from 'src/domain/payment.entity';
+import { DynamoDBClient, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
+
+import { PaymentEntity } from '../../domain/payment.entity';
 import { PaymentRepository } from '../../domain/payment.repository';
 import { createUpdateExpressions } from '../utils/dynamodb';
-import { DynamoDBClient, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 
 export class PaymentDynamoRepository implements PaymentRepository {
   constructor(private readonly dynamoClient: DynamoDBClient) {}
