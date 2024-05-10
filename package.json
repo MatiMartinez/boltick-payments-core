@@ -1,5 +1,5 @@
 {
-  "name": "overwrite-products-lambda",
+  "name": "payments",
   "main": "handler.js",
   "scripts": {
     "dev": "serverless offline start --reloadHandler",
