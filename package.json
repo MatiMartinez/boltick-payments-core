@@ -1,5 +1,5 @@
 {
-  "name": "payments",
+  "name": "create-payment",
   "main": "handler.js",
   "scripts": {
     "dev": "serverless offline start --reloadHandler",

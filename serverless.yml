@@ -1,4 +1,4 @@
-service: payments
+service: create-payment
 useDotenv: true
 frameworkVersion: '3'
 
