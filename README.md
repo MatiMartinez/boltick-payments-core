@@ -14,4 +14,4 @@ delete node_modules
 
 npm install --omit=dev
 
-zip -r create-payment.zip build node_modules/
+zip -r payments-core.zip build node_modules/

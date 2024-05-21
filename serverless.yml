@@ -1,4 +1,4 @@
-service: create-payment
+service: payments-core
 useDotenv: true
 frameworkVersion: '3'
 

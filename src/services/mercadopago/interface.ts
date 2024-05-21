@@ -1,8 +1,4 @@
-export interface IMercadoPagoService {
-  createPayment: (payload: MercadopagoPreference) => Promise<CreatePaymentResponse>;
-}
-
-export interface MercadopagoPreference {
+export interface GeneratePaymentLinkPayload {
   auto_return?: 'approved' | 'all';
   back_urls: BackUrls;
   external_reference: string;
@@ -27,6 +23,6 @@ interface BackUrls {
   success: string;
 }
 
-export interface CreatePaymentResponse {
+export interface GeneratePaymentLinkResponse {
   url: string;
 }
