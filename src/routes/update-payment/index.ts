@@ -1,4 +1,4 @@
-import { getPaymentDB, updatePaymentCallbackStatus } from '../../repository/payment.dynamo';
+import { getPaymentDB, updatePaymentCallbackStatusDB } from '../../repository/payment.dynamo';
 import { UpadatePaymentPayload } from './interface';
 
 export const updatePayment = async (payload: UpadatePaymentPayload) => {
@@ -7,7 +7,6 @@ export const updatePayment = async (payload: UpadatePaymentPayload) => {
   const currentPayment = await getPaymentDB(id);
   if (currentPayment.callbackStatus === 'Approved') return true;
 
-  await updatePaymentCallbackStatus(id, callbackStatus);
-  // Must send the payment notification.
+  await updatePaymentCallbackStatusDB(id, callbackStatus);
   return true;
 };

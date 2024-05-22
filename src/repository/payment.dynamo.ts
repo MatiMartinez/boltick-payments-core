@@ -18,7 +18,7 @@ export const getPaymentDB = async (id: string): Promise<PaymentEntity> => {
   return response.Item as unknown as PaymentEntity;
 };
 
-export const savePaymentInDB = async (payload: PaymentEntity): Promise<PaymentEntity> => {
+export const savePaymentDB = async (payload: PaymentEntity): Promise<PaymentEntity> => {
   const { id, ...rest } = payload;
 
   const dynamoClient = getDynamoInstance();
@@ -44,7 +44,7 @@ export const savePaymentInDB = async (payload: PaymentEntity): Promise<PaymentEn
   return response.Attributes as unknown as PaymentEntity;
 };
 
-export const updatePaymentCallbackStatus = async (id: string, status: Status) => {
+export const updatePaymentCallbackStatusDB = async (id: string, status: Status) => {
   const dynamoClient = getDynamoInstance();
 
   const { updateExpression, expressionAttributeValues, expressionAttributeNames } = createUpdateExpressions({

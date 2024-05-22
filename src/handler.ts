@@ -19,7 +19,7 @@ export const handler = async (event: any, _context: any, callback: any) => {
       event.requestContext.http.method === 'POST'
     ) {
       const response = await updatePayment(payload);
-      if (!response) throw new Error('Error creating payment.');
+      if (!response) throw new Error('Error updating payment.');
       callback(null, { statusCode: 200, body: JSON.stringify(response) });
     }
 
