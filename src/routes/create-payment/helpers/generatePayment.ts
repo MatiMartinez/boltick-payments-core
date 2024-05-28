@@ -2,12 +2,13 @@ import { PaymentEntity } from 'src/entities/payment.entity';
 import { CreatePaymentPayload } from '../interface';
 
 export const generatePayment = (payload: CreatePaymentPayload): PaymentEntity => {
+  const prefixEvent = payload.event.slice(0, 2).toUpperCase();
+
   return {
     ...payload,
     callbackStatus: 'Pending',
     createdAt: new Date().getTime(),
-    id: generateId('PS'),
-    items: payload.items,
+    id: generateId(prefixEvent),
     provider: 'Mercado Pago',
     status: 'Pending',
   };

@@ -8,16 +8,16 @@ export const handler = async (event: any, _context: any, callback: any) => {
     const payload = JSON.parse(event.body);
     console.log('Ingresa el siguiente payload: ', JSON.stringify(payload, null, 2));
 
-    if (event.requestContext.http.path === '/api/create-payment' && event.requestContext.http.method === 'POST') {
+    const path = event.requestContext.http.path;
+    const method = event.requestContext.http.method;
+
+    if (path === '/api/create-payment' && method === 'POST') {
       const response = await createPayment(payload);
       if (!response) throw new Error('Error creating payment.');
       callback(null, { statusCode: 200, body: JSON.stringify(response) });
     }
 
-    if (
-      event.requestContext.http.path === '/api/update-payment-callback' &&
-      event.requestContext.http.method === 'POST'
-    ) {
+    if (path === '/api/update-payment-callback' && method === 'POST') {
       const response = await updatePayment(payload);
       if (!response) throw new Error('Error updating payment.');
       callback(null, { statusCode: 200, body: JSON.stringify(response) });

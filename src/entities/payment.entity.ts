@@ -1,6 +1,7 @@
 export interface PaymentEntity {
   callbackStatus: Status;
   createdAt: number;
+  event: string;
   id: string;
   items: Item[];
   payment?: Payment;
