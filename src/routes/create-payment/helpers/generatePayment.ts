@@ -1,4 +1,4 @@
-import { PaymentEntity } from 'src/entities/payment.entity';
+import { PaymentEntity } from '../../../entities/payment.entity';
 import { CreatePaymentPayload } from '../interface';
 
 export const generatePayment = (payload: CreatePaymentPayload): PaymentEntity => {

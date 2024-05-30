@@ -2,7 +2,7 @@ import { MercadoPagoConfig, Preference } from 'mercadopago';
 import { v4 as uuid } from 'uuid';
 
 import { GeneratePaymentLinkPayload, GeneratePaymentLinkResponse } from './interface';
-import { PaymentEntity } from 'src/entities/payment.entity';
+import { PaymentEntity } from '../../entities/payment.entity';
 
 export const generatePaymentLink = async (payload: PaymentEntity): Promise<GeneratePaymentLinkResponse> => {
   const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN as string });
