@@ -1,4 +1,3 @@
-import { createFreePayment } from './routes/create-free-payment';
 import { createPayment } from './routes/create-payment';
 import { updatePayment } from './routes/update-payment';
 
@@ -24,12 +23,6 @@ export const handler = async (event: any, _context: any, callback: any) => {
     if (path === '/api/update-payment-callback' && method === 'POST') {
       const response = await updatePayment(payload);
       if (!response) throw new Error('Error updating payment.');
-      callback(null, { statusCode: 200, body: JSON.stringify(response) });
-    }
-
-    if (path === '/api/create-free-payment' && method === 'POST') {
-      const response = await createFreePayment(payload);
-      if (!response) throw new Error('Error creating payment.');
       callback(null, { statusCode: 200, body: JSON.stringify(response) });
     }
 

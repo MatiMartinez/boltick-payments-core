@@ -2,9 +2,7 @@ import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
 import { PaymentEntity } from '../../entities/payment.entity';
 
-export const notifyFreeTickets = async (payload: PaymentEntity) => {
-  const { event, items, user } = payload;
-
+export const notifyFreeTickets = async (_payload: PaymentEntity) => {
   const sesClient = new SESClient({ region: 'us-east-1' });
 
   const templateHtml = `
@@ -35,7 +33,7 @@ export const notifyFreeTickets = async (payload: PaymentEntity) => {
 
                 <div style="padding-left: 16px">
                   <div style="padding: 16px; border-radius: 4px; border: 1px solid #cecece">
-                      <p style="margin: 0; font-size: 20px; font-weight: 600;">${items[0].quantity} ${items[0].title}</p>
+                      <p style="margin: 0; font-size: 20px; font-weight: 600;"></p>
                       <p style="margin: 0; font-size: 14px;">Centro de Congreso Francisco, Parque Agnesi, San Martín, Mendoza.</p>
                       <a href="https://maps.app.goo.gl/ZwkeRuEQ56XoFSHo8" target="_blank" style="margin: 0; font-size: 16px">Ver ubicación</a>
                   </div>
@@ -61,7 +59,7 @@ export const notifyFreeTickets = async (payload: PaymentEntity) => {
 
   await sesClient.send(
     new SendEmailCommand({
-      Destination: { ToAddresses: [user] },
+      Destination: { ToAddresses: [''] },
       Message: { Body: { Html: { Data: templateHtml } }, Subject: { Data: 'Tus entradas - Boltick' } },
       Source: 'contacto@boltick.com.ar',
     })

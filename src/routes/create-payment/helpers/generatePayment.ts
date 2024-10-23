@@ -31,7 +31,6 @@ const generateNFTsFromPayload = (payload: CreateNFTPayload[]): NFT[] => {
         transaccionId: '',
         type: item.type,
         unitPrice: item.unitPrice,
-        used: 0,
       };
 
       generatedNFTs.push(newNFT);

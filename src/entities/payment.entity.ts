@@ -19,7 +19,6 @@ export interface NFT {
   transaccionId: string;
   type: string;
   unitPrice: number;
-  used: number;
 }
 
 interface Payment {
