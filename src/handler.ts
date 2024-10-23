@@ -12,7 +12,10 @@ export const handler = async (event: any, _context: any, callback: any) => {
     const path = event.requestContext.http.path;
     const method = event.requestContext.http.method;
 
-    if (path === '/api/create-payment' && method === 'POST') {
+    // const path = event.requestContext.path;
+    // const method = event.requestContext.httpMethod;
+
+    if (path === '/api/create-payment-link' && method === 'POST') {
       const response = await createPayment(payload);
       if (!response) throw new Error('Error creating payment.');
       callback(null, { statusCode: 200, body: JSON.stringify(response) });

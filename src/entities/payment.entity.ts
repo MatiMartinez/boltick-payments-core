@@ -1,20 +1,25 @@
 export interface PaymentEntity {
-  callbackStatus: Status;
-  createdAt: number;
-  event: string;
   id: string;
-  items: Item[];
+  createdAt: number;
+  updatedAt: number;
+  userId: string;
+  eventId: string;
+  nfts: NFT[];
+  walletPublicKey: string;
+
+  provider: Provider;
+  callbackStatus: Status;
+  paymentStatus: Status;
   payment?: Payment;
-  phone: string;
-  provider: string;
-  status: Status;
-  user: string;
 }
 
-interface Item {
-  title: string;
-  quantity: number;
-  unit_price: number;
+export interface NFT {
+  mint: string;
+  mintDate: number;
+  transaccionId: string;
+  type: string;
+  unitPrice: number;
+  used: number;
 }
 
 interface Payment {
@@ -25,3 +30,4 @@ interface Payment {
 }
 
 export type Status = 'Pending' | 'Approved' | 'Rejected';
+export type Provider = 'Mercado Pago';

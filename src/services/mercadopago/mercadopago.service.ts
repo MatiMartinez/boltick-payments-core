@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 import { GeneratePaymentLinkPayload, GeneratePaymentLinkResponse } from './interface';
 import { PaymentEntity } from '../../entities/payment.entity';
 
-export const generatePaymentLink = async (payload: PaymentEntity): Promise<GeneratePaymentLinkResponse> => {
+export const generateMercadoPagoPaymentLink = async (payload: PaymentEntity): Promise<GeneratePaymentLinkResponse> => {
   const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN as string });
   const preference = new Preference(client);
 
@@ -20,11 +20,11 @@ export const generatePaymentLink = async (payload: PaymentEntity): Promise<Gener
 };
 
 const generateMercadopagoPreference = (payload: PaymentEntity): GeneratePaymentLinkPayload => {
-  const { id, items, user } = payload;
+  const { id, userId, nfts } = payload;
 
   const APP_URL = process.env.APP_URL;
 
-  const precio_total = items.reduce((acc, item) => acc + item.unit_price * item.quantity, 0);
+  const precio_total = nfts.reduce((acc, item) => acc + item.unitPrice, 0);
 
   return {
     auto_return: 'approved',
@@ -34,7 +34,7 @@ const generateMercadopagoPreference = (payload: PaymentEntity): GeneratePaymentL
       success: `${APP_URL}/payment-callback-success?external_reference=${id}&amount=${precio_total}`,
     },
     external_reference: id,
-    items: [{ id: uuid(), quantity: 1, title: `Orden ${id}`, unit_price: precio_total }],
-    payer: { email: user },
+    items: [{ id: uuid(), quantity: 1, title: id, unit_price: precio_total }],
+    payer: { email: userId },
   };
 };

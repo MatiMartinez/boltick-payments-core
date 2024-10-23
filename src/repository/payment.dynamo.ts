@@ -1,4 +1,5 @@
-import { DynamoDBClient, GetItemCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, QueryCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
+import { unmarshall, marshall } from '@aws-sdk/util-dynamodb';
 
 import { createUpdateExpressions } from './utils/dynamodb';
 import { PaymentEntity, Status } from '../entities/payment.entity';
@@ -7,19 +8,25 @@ export const getPaymentDB = async (id: string): Promise<PaymentEntity> => {
   const dynamoClient = getDynamoInstance();
 
   const response = await dynamoClient.send(
-    new GetItemCommand({ TableName: 'PAYMENTS', Key: { id: { S: id } }, ProjectionExpression: 'id, callbackStatus' })
+    new QueryCommand({
+      TableName: `PAYMENTS_${process.env.ENV}`,
+      IndexName: 'idIndex',
+      KeyConditionExpression: 'id = :id',
+      ExpressionAttributeValues: { ':id': { S: id } },
+      ProjectionExpression: 'id, createdAt, userId, callbackStatus',
+    })
   );
 
-  if (!response.Item) {
+  if (!response.Items || response.Items.length === 0) {
     console.log('Error obtaining payment in database.', JSON.stringify(response, null, 2));
     throw new Error('Error obtaining payment in database.');
   }
 
-  return response.Item as unknown as PaymentEntity;
+  return unmarshall(response.Items[0]) as unknown as PaymentEntity;
 };
 
 export const savePaymentDB = async (payload: PaymentEntity): Promise<PaymentEntity> => {
-  const { id, ...rest } = payload;
+  const { userId, createdAt, ...rest } = payload;
 
   const dynamoClient = getDynamoInstance();
 
@@ -27,8 +34,8 @@ export const savePaymentDB = async (payload: PaymentEntity): Promise<PaymentEnti
 
   const response = await dynamoClient.send(
     new UpdateItemCommand({
-      TableName: 'PAYMENTS',
-      Key: { id: { S: id } },
+      TableName: `PAYMENTS_${process.env.ENV}`,
+      Key: marshall({ userId, createdAt }),
       UpdateExpression: `SET ${updateExpression.join(', ')}`,
       ExpressionAttributeValues: expressionAttributeValues,
       ExpressionAttributeNames: expressionAttributeNames,
@@ -41,20 +48,20 @@ export const savePaymentDB = async (payload: PaymentEntity): Promise<PaymentEnti
     throw new Error('Error saving payment in database.');
   }
 
-  return response.Attributes as unknown as PaymentEntity;
+  return unmarshall(response.Attributes) as unknown as PaymentEntity;
 };
 
-export const updatePaymentCallbackStatusDB = async (id: string, status: Status) => {
+export const updatePaymentCallbackStatusDB = async (userId: string, createdAt: number, callbackStatus: Status) => {
   const dynamoClient = getDynamoInstance();
 
   const { updateExpression, expressionAttributeValues, expressionAttributeNames } = createUpdateExpressions({
-    callbackStatus: status,
+    callbackStatus,
   });
 
   const response = await dynamoClient.send(
     new UpdateItemCommand({
-      TableName: 'PAYMENTS',
-      Key: { id: { S: id } },
+      TableName: `PAYMENTS_${process.env.ENV}`,
+      Key: marshall({ userId, createdAt }),
       UpdateExpression: `SET ${updateExpression.join(', ')}`,
       ExpressionAttributeValues: expressionAttributeValues,
       ExpressionAttributeNames: expressionAttributeNames,
@@ -67,7 +74,7 @@ export const updatePaymentCallbackStatusDB = async (id: string, status: Status) 
     throw new Error('Error updating payment in database.');
   }
 
-  return response.Attributes as unknown as PaymentEntity;
+  return unmarshall(response.Attributes) as unknown as PaymentEntity;
 };
 
 const getDynamoInstance = () => {

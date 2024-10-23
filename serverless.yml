@@ -23,5 +23,5 @@ functions:
     timeout: 900
     events:
       - http:
-          method: POST
-          path: /create-payment
+          method: ANY
+          path: /{proxy+}
