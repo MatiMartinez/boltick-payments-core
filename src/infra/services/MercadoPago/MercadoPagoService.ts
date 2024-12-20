@@ -36,9 +36,9 @@ export class MercadoPagoService {
     return {
       auto_return: 'approved',
       back_urls: {
-        failure: `${this.appUrl}/payment-callback-failure?external_reference=${external_reference}&amount=${totalPrice}`,
-        pending: `${this.appUrl}/payment-callback-pending?external_reference=${external_reference}&amount=${totalPrice}`,
-        success: `${this.appUrl}/payment-callback-success?external_reference=${external_reference}&amount=${totalPrice}`,
+        failure: `${this.appUrl}/payment/error`,
+        pending: `${this.appUrl}/payment/processing`,
+        success: `${this.appUrl}/payment/success`,
       },
       external_reference: external_reference,
       items: [
