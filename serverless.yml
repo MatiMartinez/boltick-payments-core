@@ -4,15 +4,25 @@ frameworkVersion: '3'
 
 provider:
   name: aws
-  runtime: nodejs16.x
+  runtime: nodejs20.x
   region: us-east-1
 
 plugins:
-  - serverless-plugin-typescript
+  - serverless-esbuild
   - serverless-offline
   - serverless-dotenv-plugin
 
 custom:
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: true
+    platform: node
+    target: node20
+    watch:
+      pattern: ['src/**/*.ts']
+      ignore: ['node_modules/**']
+
   serverless-offline:
     httpPort: 3000
     lambdaPort: 3001
@@ -20,7 +30,7 @@ custom:
 functions:
   app:
     handler: src/handler.handler
-    timeout: 900
+    timeout: 6
     events:
       - http:
           method: ANY

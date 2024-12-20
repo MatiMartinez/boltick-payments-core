@@ -1,4 +1,4 @@
-export interface PaymentEntity {
+export interface Payment {
   id: string;
   createdAt: number;
   updatedAt: number;
@@ -10,10 +10,12 @@ export interface PaymentEntity {
   provider: Provider;
   callbackStatus: Status;
   paymentStatus: Status;
-  payment?: Payment;
+  paymentDetails?: PaymentDetails;
 }
 
 export interface NFT {
+  collectionName: string;
+  collectionSymbol: string;
   mint: string;
   mintDate: number;
   transaccionId: string;
@@ -21,7 +23,7 @@ export interface NFT {
   unitPrice: number;
 }
 
-interface Payment {
+interface PaymentDetails {
   amount: number;
   code: string;
   id: string;

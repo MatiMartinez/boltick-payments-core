@@ -1,9 +1,7 @@
-export interface GeneratePaymentLinkPayload {
-  auto_return?: 'approved' | 'all';
-  back_urls: BackUrls;
+export interface GenerateLinkDTO {
+  email: string;
   external_reference: string;
-  items: Item[];
-  payer: Payer;
+  totalPrice: number;
 }
 
 interface Item {
