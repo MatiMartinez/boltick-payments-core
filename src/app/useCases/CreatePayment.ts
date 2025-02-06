@@ -43,11 +43,12 @@ export class CreatePaymentUseCase {
     input.forEach((item) => {
       for (let i = 0; i < item.quantity; i++) {
         const newNFT: NFT = {
+          id: uuid(),
           collectionName: item.collectionName,
           collectionSymbol: item.collectionSymbol,
           mint: '',
           mintDate: 0,
-          transaccionId: '',
+          transactionId: '',
           type: item.type,
           unitPrice: item.unitPrice,
         };

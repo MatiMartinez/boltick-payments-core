@@ -6,11 +6,12 @@ import { Payment } from '@domain/Payment';
 interface PaymentDocument extends Payment, Item {}
 
 const NFTSchema = new dynamoose.Schema({
+  id: { type: String, required: true },
   collectionName: { type: String, required: true },
   collectionSymbol: { type: String, required: true },
   mint: { type: String, required: true },
   mintDate: { type: Number, required: true },
-  transaccionId: { type: String, required: true },
+  transactionId: { type: String, required: true },
   type: { type: String, required: true },
   unitPrice: { type: Number, required: true },
 });

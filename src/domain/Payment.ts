@@ -14,11 +14,12 @@ export interface Payment {
 }
 
 export interface NFT {
+  id: string;
   collectionName: string;
   collectionSymbol: string;
   mint: string;
   mintDate: number;
-  transaccionId: string;
+  transactionId: string;
   type: string;
   unitPrice: number;
 }
