@@ -42,8 +42,6 @@ export class SolanaService {
         } catch (error) {}
       }
 
-      console.log('Tokens successfully obtained: ', JSON.stringify(filteredTokens, null, 2));
-
       return filteredTokens;
     } catch (error) {
       const err = error as Error;
