@@ -1,6 +1,6 @@
 export interface FileResponse {
   fileKey: string;
-  content: Content | null;
+  content: Content;
 }
 
 interface Content {

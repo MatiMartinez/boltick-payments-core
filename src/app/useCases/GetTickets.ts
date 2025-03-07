@@ -1,3 +1,4 @@
+import { Ticket } from '@domain/Ticket';
 import { S3Service } from '@services/S3/S3Service';
 import { SolanaService } from '@services/Solana/SolanaService';
 
@@ -7,25 +8,29 @@ export class GetTicketsUseCase {
     private SolanaService: SolanaService
   ) {}
 
-  async execute(input: string): Promise<any> {
+  async execute(input: string): Promise<Ticket[]> {
     const tokens = await this.SolanaService.getTokens(input);
 
     const uris = tokens.map((token) => this.extractFileKey(token.uri));
 
     const jsons = await this.S3Service.getMultipleJsonFiles('boltick-metadata', uris);
 
-    const tickets = tokens.map((token) => {
+    const tickets: Ticket[] = [];
+
+    tokens.forEach((token) => {
       const json = jsons.find((json) => json.fileKey === this.extractFileKey(token.uri));
 
-      return {
-        collectionAddress: token.collectionAddress,
-        createdAt: json?.content?.createdAt,
-        imageUrl: json?.content?.imageUrl,
-        name: token.name,
-        symbol: token.symbol,
-        type: json?.content?.type,
-        unitPrice: json?.content?.unitPrice,
-      };
+      if (json) {
+        tickets.push({
+          collectionAddress: token.collectionAddress,
+          createdAt: json.content.createdAt,
+          imageUrl: json.content.imageUrl,
+          name: token.name,
+          symbol: token.symbol,
+          type: json.content.type,
+          unitPrice: json.content.unitPrice,
+        });
+      }
     });
 
     return tickets;

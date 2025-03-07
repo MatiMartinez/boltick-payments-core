@@ -12,9 +12,11 @@ export class S3Service {
 
   async getMultipleJsonFiles(bucketName: string, fileKeys: string[]): Promise<FileResponse[]> {
     try {
-      const filePromises: Promise<FileResponse>[] = fileKeys.map((key) => this.getJsonFile(bucketName, key));
+      const filePromises: Promise<FileResponse | null>[] = fileKeys.map((key) => this.getJsonFile(bucketName, key));
 
-      return await Promise.all(filePromises);
+      const files = await Promise.all(filePromises);
+
+      return files.filter((file) => file !== null);
     } catch (error) {
       const err = error as Error;
       console.error(err.message);
@@ -22,13 +24,13 @@ export class S3Service {
     }
   }
 
-  private async getJsonFile(bucketName: string, fileKey: string): Promise<FileResponse> {
+  private async getJsonFile(bucketName: string, fileKey: string): Promise<FileResponse | null> {
     try {
       const { Body } = await this.S3Client.send(new GetObjectCommand({ Bucket: bucketName, Key: fileKey }));
 
       if (!Body) {
         console.error('File not found: ', fileKey);
-        return { fileKey, content: null };
+        return null;
       }
 
       const fileContent = await this.streamToString(Body as Readable);
@@ -37,7 +39,7 @@ export class S3Service {
     } catch (error) {
       const err = error as Error;
       console.error(err.message);
-      return { fileKey, content: null };
+      return null;
     }
   }
 
