@@ -22,13 +22,14 @@ export class GetTicketsUseCase {
 
       if (json) {
         tickets.push({
-          collectionAddress: token.collectionAddress,
+          payment: {
+            eventId: json.content.payment.eventId,
+          },
+          nft: json.content.nft,
           createdAt: json.content.createdAt,
           imageUrl: json.content.imageUrl,
-          name: token.name,
-          symbol: token.symbol,
-          type: json.content.type,
-          unitPrice: json.content.unitPrice,
+          used: json.content.used,
+          useDate: json.content.useDate,
         });
       }
     });

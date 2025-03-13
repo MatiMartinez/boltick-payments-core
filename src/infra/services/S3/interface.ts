@@ -4,10 +4,21 @@ export interface FileResponse {
 }
 
 interface Content {
+  payment: {
+    id: string;
+    userId: string;
+    eventId: string;
+  };
+  nft: {
+    id: string;
+    collectionName: string;
+    collectionSymbol: string;
+    ticketNumber: string;
+    type: string;
+    unitPrice: number;
+  };
   createdAt: number;
   imageUrl: string;
-  paymentId: string;
-  type: string;
-  unitPrice: number;
   used: number;
+  useDate: number;
 }
