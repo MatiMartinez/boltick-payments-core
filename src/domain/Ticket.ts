@@ -14,4 +14,5 @@ export interface Ticket {
   imageUrl: string;
   used: number;
   useDate: number;
+  uri: string;
 }

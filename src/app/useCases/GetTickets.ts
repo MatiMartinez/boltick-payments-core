@@ -30,6 +30,7 @@ export class GetTicketsUseCase {
           imageUrl: json.content.imageUrl,
           used: json.content.used,
           useDate: json.content.useDate,
+          uri: token.uri,
         });
       }
     });
