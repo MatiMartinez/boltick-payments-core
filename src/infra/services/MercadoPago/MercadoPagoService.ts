@@ -20,6 +20,9 @@ export class MercadoPagoService {
     const preference = new Preference(this.client);
 
     const preferences = this.generatePreference(input);
+
+    console.log('Generated preference:', JSON.stringify(preferences, null, 2));
+
     const response = await preference.create({ body: preferences });
 
     if (response.api_response.status !== 201 || !response?.init_point) {
@@ -34,12 +37,12 @@ export class MercadoPagoService {
     const { email, external_reference, totalPrice } = input;
 
     return {
-      auto_return: 'approved',
       back_urls: {
         failure: `${this.appUrl}/payment/error`,
         pending: `${this.appUrl}/payment/processing`,
         success: `${this.appUrl}/payment/success`,
       },
+      auto_return: 'approved',
       external_reference: external_reference,
       items: [
         {

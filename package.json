@@ -11,12 +11,14 @@
     "@codegenie/serverless-express": "4.16.0",
     "@metaplex-foundation/js": "0.20.1",
     "@solana/web3.js": "1.98.0",
+    "cors": "2.8.5",
     "dynamoose": "4.0.2",
     "express": "4.21.2",
     "mercadopago": "2.0.3",
     "uuid": "9.0.1"
   },
   "devDependencies": {
+    "@types/cors": "2.8.17",
     "@types/express": "5.0.0",
     "@types/node": "20.9.1",
     "@types/uuid": "9.0.6",
