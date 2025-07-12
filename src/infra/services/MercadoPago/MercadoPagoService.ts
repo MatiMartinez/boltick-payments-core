@@ -1,57 +1,73 @@
-import { MercadoPagoConfig, Preference } from 'mercadopago';
-import { v4 as uuid } from 'uuid';
+import { MercadoPagoConfig, Preference } from "mercadopago";
+import {
+  IMercadoPagoService,
+  GenerateLinkInput,
+  GenerateLinkOutput,
+  GeneratePreferenceInput,
+  GeneratePreferenceOutput,
+} from "@services/MercadoPago/interface";
+import { ILogger } from "@commons/Logger/interface";
 
-import { GenerateLinkDTO } from './interface';
-
-export class MercadoPagoService {
+export class MercadoPagoService implements IMercadoPagoService {
   private client: MercadoPagoConfig;
   private appUrl: string;
+  private logger: ILogger;
 
-  constructor(accessToken: string, appUrl: string) {
+  constructor(accessToken: string, appUrl: string, logger: ILogger) {
     if (!accessToken || !appUrl) {
-      throw new Error('Missing required configurations for MercadoPagoService.');
+      throw new Error(
+        "Missing required configurations for MercadoPagoService."
+      );
     }
-
     this.client = new MercadoPagoConfig({ accessToken });
     this.appUrl = appUrl;
+    this.logger = logger;
   }
 
-  async generateLink(input: GenerateLinkDTO): Promise<string> {
+  public async generateLink(
+    input: GenerateLinkInput
+  ): Promise<GenerateLinkOutput> {
     const preference = new Preference(this.client);
-
     const preferences = this.generatePreference(input);
 
-    console.log('Generated preference:', JSON.stringify(preferences, null, 2));
+    this.logger.info("Generated MercadoPago preference", { preferences });
 
-    const response = await preference.create({ body: preferences });
-
-    if (response.api_response.status !== 201 || !response?.init_point) {
-      console.error('Error generating payment link.', JSON.stringify(response, null, 2));
-      throw new Error('Error generating payment link.');
+    try {
+      const response = await preference.create({ body: preferences });
+      if (response.api_response.status !== 201 || !response?.init_point) {
+        this.logger.error("Error generating payment link", { response });
+        throw new Error("Error generating payment link.");
+      }
+      this.logger.info("Payment link generated successfully", {
+        url: response.init_point,
+      });
+      return { url: response.init_point };
+    } catch (error) {
+      this.logger.error("Exception thrown in MercadoPagoService.generateLink", {
+        error,
+      });
+      throw error;
     }
-
-    return response.init_point;
   }
 
-  private generatePreference(input: GenerateLinkDTO) {
-    const { email, external_reference, totalPrice } = input;
-
+  private generatePreference(
+    input: GeneratePreferenceInput
+  ): GeneratePreferenceOutput {
+    const { email, externalReference, items } = input;
     return {
       back_urls: {
         failure: `${this.appUrl}/payment/error`,
         pending: `${this.appUrl}/payment/processing`,
         success: `${this.appUrl}/payment/success`,
       },
-      auto_return: 'approved',
-      external_reference: external_reference,
-      items: [
-        {
-          id: uuid(),
-          quantity: 1,
-          title: 'Ticket',
-          unit_price: totalPrice,
-        },
-      ],
+      auto_return: "approved",
+      external_reference: externalReference,
+      items: items.map((item) => ({
+        id: item.id,
+        quantity: item.quantity,
+        title: item.title,
+        unit_price: item.unitPrice,
+      })),
       payer: { email: email },
     };
   }

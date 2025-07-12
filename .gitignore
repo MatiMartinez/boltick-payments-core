@@ -4,3 +4,9 @@ build
 .esbuild
 .env*
 *.zip
+
+# Ignorar archivos y carpetas referidas a windsurf
+.windsurf/
+windsurf.*
+windsurf-*
+.windsurf-*

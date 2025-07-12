@@ -1,9 +1,9 @@
-import { v4 as uuid } from 'uuid';
+import { v4 as uuid } from "uuid";
 
-import { NFT, Payment } from '@domain/Payment';
-import { CreatePaymentDTO, NFTDTO } from '@dtos/CreatePayment';
-import { PaymentRepository } from '@repositories/PaymentRepository';
-import { MercadoPagoService } from '@services/MercadoPago/MercadoPagoService';
+import { NFT, Payment } from "@domain/Payment";
+import { PaymentRepository } from "@repositories/PaymentRepository";
+import { MercadoPagoService } from "@services/MercadoPago/MercadoPagoService";
+import { CreatePaymentInput, CreatePaymentOutput, NFTInput } from "./interface";
 
 export class CreatePaymentUseCase {
   constructor(
@@ -11,7 +11,7 @@ export class CreatePaymentUseCase {
     private MercadoPagoService: MercadoPagoService
   ) {}
 
-  async execute(input: CreatePaymentDTO): Promise<string> {
+  async execute(input: CreatePaymentInput): Promise<CreatePaymentOutput> {
     const currentTime = new Date().getTime();
 
     const payment: Payment = {
@@ -20,24 +20,29 @@ export class CreatePaymentUseCase {
       createdAt: currentTime,
       updatedAt: currentTime,
       nfts: this.generateNFTs(input.nfts),
-      callbackStatus: 'Pending',
-      paymentStatus: 'Pending',
+      callbackStatus: "Pending",
+      paymentStatus: "Pending",
     };
 
     await this.PaymentRepository.createPayment(payment);
 
-    const totalPrice = payment.nfts.reduce((acc, el) => acc + el.unitPrice, 0);
+    const items = input.nfts.map((nft) => ({
+      id: uuid(),
+      title: `${nft.collectionName} ${nft.type}`,
+      quantity: nft.quantity,
+      unitPrice: nft.unitPrice,
+    }));
 
     const link = await this.MercadoPagoService.generateLink({
       email: payment.userId,
-      external_reference: payment.id,
-      totalPrice: totalPrice,
+      externalReference: payment.id,
+      items,
     });
 
-    return link;
+    return { url: link.url };
   }
 
-  private generateNFTs(input: NFTDTO[]): NFT[] {
+  private generateNFTs(input: NFTInput[]): NFT[] {
     const generatedNFTs: NFT[] = [];
 
     input.forEach((item) => {
@@ -46,11 +51,11 @@ export class CreatePaymentUseCase {
           id: uuid(),
           collectionName: item.collectionName,
           collectionSymbol: item.collectionSymbol,
-          metadataUrl: '',
-          mint: '',
+          metadataUrl: "",
+          mint: "",
           mintDate: 0,
-          ticketNumber: '',
-          transactionId: '',
+          ticketNumber: "",
+          transactionId: "",
           type: item.type,
           unitPrice: item.unitPrice,
         };

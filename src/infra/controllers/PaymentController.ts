@@ -1,7 +1,7 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 
-import { CreatePaymentUseCase } from '@useCases/CreatePayment';
-import { UpdatePaymentUseCase } from '@useCases/UpdatePayment';
+import { CreatePaymentUseCase } from "@useCases/CreatePaymentUseCase/CreatePaymentUseCase";
+import { UpdatePaymentUseCase } from "@useCases/UpdatePaymentUseCase/UpdatePaymentUseCase";
 
 export class PaymentController {
   constructor(
@@ -12,10 +12,10 @@ export class PaymentController {
   async CreatePayment(req: Request, res: Response): Promise<void> {
     try {
       const result = await this.CreatePaymentUseCase.execute(req.body);
-      res.status(200).json({ url: result });
+      res.status(200).json(result);
     } catch (error) {
       const err = error as Error;
-      console.error('Error generating payment link:', err.message);
+      console.error("Error generating payment link:", err.message);
       res.status(400).json({ error: err.message });
     }
   }
@@ -23,10 +23,10 @@ export class PaymentController {
   async UpdatePayment(req: Request, res: Response): Promise<void> {
     try {
       const result = await this.UpdatePaymentUseCase.execute(req.body);
-      res.status(200).json({ payment: result });
+      res.status(200).json(result);
     } catch (error) {
       const err = error as Error;
-      console.error('Error updating payment callback status:', err.message);
+      console.error("Error updating payment callback status:", err.message);
       res.status(400).json({ error: err.message });
     }
   }

@@ -1,26 +1,46 @@
-export interface GenerateLinkDTO {
+export interface IMercadoPagoService {
+  generateLink(input: GenerateLinkInput): Promise<GenerateLinkOutput>;
+}
+
+export interface GenerateLinkInput {
   email: string;
-  external_reference: string;
-  totalPrice: number;
+  externalReference: string;
+  items: Array<{
+    id: string;
+    quantity: number;
+    title: string;
+    unitPrice: number;
+  }>;
 }
 
-interface Item {
-  id: string;
-  quantity: number;
-  title: string;
-  unit_price: number;
-}
-
-interface Payer {
-  email: string;
-}
-
-interface BackUrls {
-  failure: string;
-  pending: string;
-  success: string;
-}
-
-export interface GeneratePaymentLinkResponse {
+export interface GenerateLinkOutput {
   url: string;
+}
+
+export interface GeneratePreferenceInput {
+  email: string;
+  externalReference: string;
+  items: Array<{
+    id: string;
+    quantity: number;
+    title: string;
+    unitPrice: number;
+  }>;
+}
+
+export interface GeneratePreferenceOutput {
+  back_urls: {
+    failure: string;
+    pending: string;
+    success: string;
+  };
+  auto_return: string;
+  external_reference: string;
+  items: Array<{
+    id: string;
+    quantity: number;
+    title: string;
+    unit_price: number;
+  }>;
+  payer: { email: string };
 }
