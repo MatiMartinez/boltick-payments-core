@@ -1,7 +1,7 @@
-import { Ticket } from '@domain/Ticket';
+import { Ticket } from "@domain/Ticket";
 
 export interface GetTicketsInput {
-  userId: string;
+  walletAddress: string;
 }
 
 export interface GetTicketsOutput {

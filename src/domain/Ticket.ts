@@ -1,18 +1,17 @@
 export interface Ticket {
-  payment: {
-    eventId: string;
-  };
-  nft: {
-    id: string;
-    collectionName: string;
-    collectionSymbol: string;
-    ticketNumber: string;
-    type: string;
-    unitPrice: number;
-  };
-  createdAt: number;
+  ticketNumber: string;
+  type: string;
+  unitPrice: number;
   imageUrl: string;
+
+  eventId: string;
+  eventName: string;
+
+  assetId: string;
+  collectionName: string;
+  collectionSymbol: string;
+
+  createdAt: number;
   used: number;
   useDate: number;
-  uri: string;
 }

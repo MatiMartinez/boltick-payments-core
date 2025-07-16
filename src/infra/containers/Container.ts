@@ -27,7 +27,19 @@ export class Container {
   private constructor() {
     const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN as string;
     const appUrl = process.env.APP_URL as string;
-    const rpcEndpoint = "https://api.devnet.solana.com";
+    const apiKey = process.env.SOLANA_API_KEY as string;
+
+    if (!accessToken) {
+      throw new Error(
+        "MERCADOPAGO_ACCESS_TOKEN environment variable is required"
+      );
+    }
+    if (!appUrl) {
+      throw new Error("APP_URL environment variable is required");
+    }
+    if (!apiKey) {
+      throw new Error("SOLANA_API_KEY environment variable is required");
+    }
 
     this.logger = Logger.getInstance();
 
@@ -37,7 +49,7 @@ export class Container {
       this.logger
     );
     this.S3Service = new S3Service();
-    this.SolanaService = new SolanaService(rpcEndpoint);
+    this.SolanaService = new SolanaService(apiKey);
     this.PaymentRepository = new PaymentRepository();
     this.CreatePaymentUseCase = new CreatePaymentUseCase(
       this.PaymentRepository,
