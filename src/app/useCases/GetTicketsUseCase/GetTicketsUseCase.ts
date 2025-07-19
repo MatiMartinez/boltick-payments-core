@@ -19,7 +19,7 @@ export class GetTicketsUseCase {
       .filter((uri) => uri !== "");
 
     const jsons = await this.S3Service.getMultipleJsonFiles(
-      "boltick-metadata",
+      "boltick-nft-metadata",
       uris
     );
 
