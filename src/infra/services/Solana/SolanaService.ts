@@ -1,12 +1,10 @@
 import { ISolanaService, UserNFT } from "./interface";
 
 export class SolanaService implements ISolanaService {
-  private apiKey: string;
   private rpcUrl: string;
   private creatorAddress: string;
 
   constructor(apiKey: string) {
-    this.apiKey = apiKey;
     this.rpcUrl = `https://mainnet.helius-rpc.com/?api-key=${apiKey}`;
 
     this.creatorAddress = process.env.CREATOR_PUBLIC_KEY as string;

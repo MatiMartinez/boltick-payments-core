@@ -2,7 +2,7 @@ import { NFT, Payment } from "@domain/Payment";
 
 export type CreatePaymentInput = Pick<
   Payment,
-  "userId" | "eventId" | "walletPublicKey" | "provider"
+  "userId" | "eventId" | "walletPublicKey" | "provider" | "prName"
 > & {
   nfts: NFTInput[];
 };
