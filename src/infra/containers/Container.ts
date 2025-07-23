@@ -9,6 +9,7 @@ import { SolanaService } from "@services/Solana/SolanaService";
 import { CreatePaymentUseCase } from "@useCases/CreatePaymentUseCase/CreatePaymentUseCase";
 import { GetTicketsUseCase } from "@useCases/GetTicketsUseCase/GetTicketsUseCase";
 import { UpdatePaymentUseCase } from "@useCases/UpdatePaymentUseCase/UpdatePaymentUseCase";
+import { TicketCountRepository } from "@repositories/TicketCountRepository";
 
 export class Container {
   private static instance: Container;
@@ -18,6 +19,7 @@ export class Container {
   private S3Service: S3Service;
   private SolanaService: SolanaService;
   private PaymentRepository: PaymentRepository;
+  private TicketCountRepository: TicketCountRepository;
   private CreatePaymentUseCase: CreatePaymentUseCase;
   private UpdatePaymentUseCase: UpdatePaymentUseCase;
   private GetTicketsUseCase: GetTicketsUseCase;
@@ -51,8 +53,10 @@ export class Container {
     this.S3Service = new S3Service();
     this.SolanaService = new SolanaService(apiKey);
     this.PaymentRepository = new PaymentRepository();
+    this.TicketCountRepository = new TicketCountRepository();
     this.CreatePaymentUseCase = new CreatePaymentUseCase(
       this.PaymentRepository,
+      this.TicketCountRepository,
       this.MercadoPagoService
     );
     this.UpdatePaymentUseCase = new UpdatePaymentUseCase(

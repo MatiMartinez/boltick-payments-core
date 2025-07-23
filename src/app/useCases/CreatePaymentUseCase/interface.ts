@@ -13,5 +13,9 @@ export type NFTInput = Pick<
 > & { quantity: number };
 
 export interface CreatePaymentOutput {
-  url: string;
+  success: number;
+  message: string;
+  data?: {
+    url: string;
+  };
 }

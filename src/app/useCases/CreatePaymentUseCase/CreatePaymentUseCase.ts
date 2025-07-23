@@ -2,16 +2,26 @@ import { v4 as uuid } from "uuid";
 
 import { NFT, Payment } from "@domain/Payment";
 import { PaymentRepository } from "@repositories/PaymentRepository";
+import { TicketCountRepository } from "@repositories/TicketCountRepository";
 import { MercadoPagoService } from "@services/MercadoPago/MercadoPagoService";
 import { CreatePaymentInput, CreatePaymentOutput, NFTInput } from "./interface";
 
 export class CreatePaymentUseCase {
   constructor(
     private PaymentRepository: PaymentRepository,
+    private TicketCountRepository: TicketCountRepository,
     private MercadoPagoService: MercadoPagoService
   ) {}
 
   async execute(input: CreatePaymentInput): Promise<CreatePaymentOutput> {
+    const isValid = await this.validateTicketCount(input.eventId);
+    if (!isValid) {
+      return {
+        success: 0,
+        message: "Lo sentimos, las entradas se agotaron",
+      };
+    }
+
     const currentTime = new Date().getTime();
 
     const payment: Payment = {
@@ -39,7 +49,11 @@ export class CreatePaymentUseCase {
       items,
     });
 
-    return { url: link.url };
+    return {
+      success: 1,
+      message: "Pago creado correctamente",
+      data: { url: link.url },
+    };
   }
 
   private generateNFTs(input: NFTInput[]): NFT[] {
@@ -66,5 +80,13 @@ export class CreatePaymentUseCase {
     });
 
     return generatedNFTs;
+  }
+
+  private async validateTicketCount(eventId: string): Promise<boolean> {
+    const count = await this.TicketCountRepository.getCountByEventId(eventId);
+    if (count >= 200) {
+      return false;
+    }
+    return true;
   }
 }
