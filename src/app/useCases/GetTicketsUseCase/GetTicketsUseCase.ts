@@ -56,10 +56,11 @@ export class GetTicketsUseCase {
       ticketNumber: s3Content.nft?.ticketNumber || "",
       type: s3Content.nft?.type || "",
       unitPrice: s3Content.nft?.unitPrice || 0,
-      imageUrl: s3Content.imageUrl || "",
+      imageUrl: s3Content.nft?.imageUrl || "",
 
       eventId: s3Content.payment?.eventId || "",
-      eventName: s3Content.nft?.collectionName || "Evento sin nombre",
+      eventName: s3Content.payment?.eventName || "",
+      prName: s3Content.payment?.prName || "",
 
       assetId: nft.address,
       collectionName: s3Content.nft?.collectionName || "",

@@ -109,7 +109,7 @@ export class SolanaService implements ISolanaService {
 
     return {
       address: asset.id,
-      name: metadata.name || "Unknown",
+      name: metadata.name || "",
       symbol: metadata.symbol || "",
       description: metadata.description || "",
       image: links.image || "",

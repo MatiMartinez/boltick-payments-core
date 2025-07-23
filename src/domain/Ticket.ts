@@ -6,6 +6,7 @@ export interface Ticket {
 
   eventId: string;
   eventName: string;
+  prName: string;
 
   assetId: string;
   collectionName: string;

@@ -1,7 +1,7 @@
-import * as dynamoose from 'dynamoose';
-import { Item } from 'dynamoose/dist/Item';
+import * as dynamoose from "dynamoose";
+import { Item } from "dynamoose/dist/Item";
 
-import { Payment } from '@domain/Payment';
+import { Payment } from "@domain/Payment";
 
 interface PaymentDocument extends Payment, Item {}
 
@@ -9,6 +9,7 @@ const NFTSchema = new dynamoose.Schema({
   id: { type: String, required: true },
   collectionName: { type: String, required: true },
   collectionSymbol: { type: String, required: true },
+  imageUrl: { type: String, required: true },
   metadataUrl: { type: String, required: true },
   mint: { type: String, required: true },
   mintDate: { type: Number, required: true },
@@ -26,20 +27,29 @@ const PaymentDetailsSchema = new dynamoose.Schema({
 });
 
 const PaymentSchema = new dynamoose.Schema({
-  id: { type: String, required: true, index: { name: 'idIndex' } },
+  id: { type: String, required: true, index: { name: "idIndex" } },
   callbackStatus: { type: String, required: true },
   createdAt: { type: Number, required: true, rangeKey: true },
   eventId: { type: String, required: true },
+  eventName: { type: String, required: true },
   nfts: { type: Array, schema: [{ type: Object, schema: NFTSchema }] },
-  paymentDetails: { type: Object, required: false, schema: PaymentDetailsSchema },
+  paymentDetails: {
+    type: Object,
+    required: false,
+    schema: PaymentDetailsSchema,
+  },
   paymentStatus: { type: String, required: true },
+  prName: { type: String, required: true },
   provider: { type: String, required: true },
   updatedAt: { type: Number, required: true },
   userId: { type: String, required: true, hashKey: true },
   walletPublicKey: { type: String, required: true },
-  prName: { type: String, required: true },
 });
 
 const tableName = `PAYMENTS_${process.env.ENV}`;
 
-export const PaymentModel = dynamoose.model<PaymentDocument>(tableName, PaymentSchema, { throughput: 'ON_DEMAND' });
+export const PaymentModel = dynamoose.model<PaymentDocument>(
+  tableName,
+  PaymentSchema,
+  { throughput: "ON_DEMAND" }
+);

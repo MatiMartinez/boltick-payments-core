@@ -51,6 +51,7 @@ export class CreatePaymentUseCase {
           id: uuid(),
           collectionName: item.collectionName,
           collectionSymbol: item.collectionSymbol,
+          imageUrl: item.imageUrl,
           metadataUrl: "",
           mint: "",
           mintDate: 0,

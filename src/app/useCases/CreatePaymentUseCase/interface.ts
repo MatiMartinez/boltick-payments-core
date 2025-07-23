@@ -2,14 +2,14 @@ import { NFT, Payment } from "@domain/Payment";
 
 export type CreatePaymentInput = Pick<
   Payment,
-  "userId" | "eventId" | "walletPublicKey" | "provider" | "prName"
+  "userId" | "eventId" | "eventName" | "walletPublicKey" | "provider" | "prName"
 > & {
   nfts: NFTInput[];
 };
 
 export type NFTInput = Pick<
   NFT,
-  "collectionName" | "collectionSymbol" | "type" | "unitPrice"
+  "collectionName" | "collectionSymbol" | "imageUrl" | "type" | "unitPrice"
 > & { quantity: number };
 
 export interface CreatePaymentOutput {

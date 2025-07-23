@@ -3,6 +3,7 @@ export interface Payment {
   callbackStatus: Status;
   createdAt: number;
   eventId: string;
+  eventName: string;
   nfts: NFT[];
   paymentDetails?: PaymentDetails;
   paymentStatus: Status;
@@ -17,6 +18,7 @@ export interface NFT {
   id: string;
   collectionName: string;
   collectionSymbol: string;
+  imageUrl: string;
   metadataUrl: string;
   mint: string;
   mintDate: number;
@@ -33,5 +35,5 @@ interface PaymentDetails {
   updatedAt: number;
 }
 
-export type Status = 'Pending' | 'Approved' | 'Rejected';
-export type Provider = 'Mercado Pago';
+export type Status = "Pending" | "Approved" | "Rejected";
+export type Provider = "Mercado Pago";
