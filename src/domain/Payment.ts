@@ -7,11 +7,11 @@ export interface Payment {
   nfts: NFT[];
   paymentDetails?: PaymentDetails;
   paymentStatus: Status;
+  prName: string;
   provider: Provider;
   updatedAt: number;
   userId: string;
   walletPublicKey: string;
-  prName: string;
 }
 
 export interface NFT {
