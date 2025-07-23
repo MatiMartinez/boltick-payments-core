@@ -19,6 +19,7 @@
       "@commons/*": ["src/infra/commons/*"],
       "@containers/*": ["src/infra/containers/*"],
       "@controllers/*": ["src/infra/controllers/*"],
+      "@db/*": ["src/db/*"],
       "@domain/*": ["src/domain/*"],
       "@dtos/*": ["src/app/dtos/*"],
       "@models/*": ["src/infra/models/*"],

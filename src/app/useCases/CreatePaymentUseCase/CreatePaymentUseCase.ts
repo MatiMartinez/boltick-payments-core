@@ -5,6 +5,7 @@ import { PaymentRepository } from "@repositories/PaymentRepository";
 import { TicketCountRepository } from "@repositories/TicketCountRepository";
 import { MercadoPagoService } from "@services/MercadoPago/MercadoPagoService";
 import { CreatePaymentInput, CreatePaymentOutput, NFTInput } from "./interface";
+import { events } from "@db/events";
 
 export class CreatePaymentUseCase {
   constructor(
@@ -14,6 +15,8 @@ export class CreatePaymentUseCase {
   ) {}
 
   async execute(input: CreatePaymentInput): Promise<CreatePaymentOutput> {
+    this.validateNFTPrices(input.eventId, input.nfts);
+
     const isValid = await this.validateTicketCount(input.eventId);
     if (!isValid) {
       return {
@@ -80,6 +83,35 @@ export class CreatePaymentUseCase {
     });
 
     return generatedNFTs;
+  }
+
+  private validateNFTPrices(eventId: string, nfts: NFTInput[]): void {
+    const event = events.find((e) => e.id === eventId);
+    if (!event) {
+      console.error("Evento no encontrado", { eventId });
+      throw new Error("Evento no encontrado");
+    }
+
+    for (const nft of nfts) {
+      const officialTicket = event.tickets.find((t) => t.name === nft.type);
+
+      if (!officialTicket) {
+        console.error("Ticket no encontrado para el type especificado", {
+          type: nft.type,
+        });
+        throw new Error("El tipo de ticket no es válido para este evento");
+      }
+
+      if (officialTicket.price !== nft.unitPrice) {
+        console.warn("Intento de compra con precio modificado", {
+          ticket: officialTicket,
+          recibido: nft.unitPrice,
+        });
+        throw new Error(
+          "El precio del ticket no coincide con el precio oficial"
+        );
+      }
+    }
   }
 
   private async validateTicketCount(eventId: string): Promise<boolean> {
