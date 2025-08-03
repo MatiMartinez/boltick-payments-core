@@ -1,7 +1,6 @@
-import { Ticket } from "@domain/Ticket";
 import { S3Service } from "@services/S3/S3Service";
 import { SolanaService } from "@services/Solana/SolanaService";
-import { GetTicketsInput, GetTicketsOutput } from "./interface";
+import { GetTicketsInput, GetTicketsOutput, UserTicket } from "./interface";
 
 export class GetTicketsUseCase {
   constructor(
@@ -10,25 +9,16 @@ export class GetTicketsUseCase {
   ) {}
 
   async execute(input: GetTicketsInput): Promise<GetTicketsOutput> {
-    const userNFTs = await this.SolanaService.getMyNFTsFromWallet(
-      input.walletAddress
-    );
+    const userNFTs = await this.SolanaService.getMyNFTsFromWallet(input.walletAddress);
 
-    const uris = userNFTs
-      .map((nft) => this.extractFileKey(nft.external_url))
-      .filter((uri) => uri !== "");
+    const uris = userNFTs.map((nft) => this.extractFileKey(nft.external_url)).filter((uri) => uri !== "");
 
-    const jsons = await this.S3Service.getMultipleJsonFiles(
-      "boltick-nft-metadata",
-      uris
-    );
+    const jsons = await this.S3Service.getMultipleJsonFiles("boltick-nft-metadata", uris);
 
-    const tickets: Ticket[] = [];
+    const tickets: UserTicket[] = [];
 
     userNFTs.forEach((nft) => {
-      const json = jsons.find(
-        (json) => json.fileKey === this.extractFileKey(nft.external_url)
-      );
+      const json = jsons.find((json) => json.fileKey === this.extractFileKey(nft.external_url));
 
       if (json) {
         const ticket = this.mapToTicket(nft, json.content);
@@ -51,7 +41,7 @@ export class GetTicketsUseCase {
     }
   }
 
-  private mapToTicket(nft: any, s3Content: any): Ticket {
+  private mapToTicket(nft: any, s3Content: any): UserTicket {
     return {
       ticketNumber: s3Content.nft?.ticketNumber || "",
       type: s3Content.nft?.type || "",

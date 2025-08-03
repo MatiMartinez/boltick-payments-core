@@ -1,13 +1,15 @@
-export interface Ticket {
+export interface TicketEntity {
   ticketNumber: string;
   type: string;
   unitPrice: number;
   imageUrl: string;
+  metadataUrl: string;
 
   eventId: string;
   eventName: string;
   prName: string;
 
+  walletAddress: string;
   assetId: string;
   collectionName: string;
   collectionSymbol: string;
