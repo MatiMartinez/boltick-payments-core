@@ -7,7 +7,7 @@ export interface IGenerateEntryUseCaseInput {
 }
 
 export interface IGenerateEntryUseCaseOutput {
-  data: { token: string };
-  result: number;
+  success: number;
   message: string;
+  data?: { token: string };
 }

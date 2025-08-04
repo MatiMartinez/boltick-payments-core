@@ -12,11 +12,11 @@ export class GenerateEntryUseCase implements IGenerateEntryUseCase {
     const ticket = await this.ticketRepository.findByTicketNumber(input.ticketNumber);
 
     if (!ticket) {
-      return { result: 0, data: { token: "" }, message: "Ticket no encontrado" };
+      return { success: 0, message: "Ticket no encontrado" };
     }
 
     if (ticket.used === 1) {
-      return { result: 0, data: { token: "" }, message: "Ticket ya utilizado" };
+      return { success: 0, message: "Ticket ya utilizado" };
     }
 
     const payload = {
@@ -25,6 +25,6 @@ export class GenerateEntryUseCase implements IGenerateEntryUseCase {
 
     const token = this.jwtService.generateAccessToken(payload, 60);
 
-    return { result: 1, data: { token }, message: "Token generado correctamente" };
+    return { success: 1, message: "Token generado correctamente", data: { token } };
   }
 }
