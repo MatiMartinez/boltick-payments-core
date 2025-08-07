@@ -1,11 +1,12 @@
+import { customAlphabet } from "nanoid";
 import { IGenerateEntryUseCase, IGenerateEntryUseCaseInput, IGenerateEntryUseCaseOutput } from "./interface";
 import { ITicketRepository } from "@domain/repositories/ITicketRepository";
-import { IJWTService } from "@services/JWT/interface";
+import { ILogger } from "@commons/Logger/interface";
 
 export class GenerateEntryUseCase implements IGenerateEntryUseCase {
   constructor(
     private ticketRepository: ITicketRepository,
-    private jwtService: IJWTService
+    private logger: ILogger
   ) {}
 
   public async execute(input: IGenerateEntryUseCaseInput): Promise<IGenerateEntryUseCaseOutput> {
@@ -19,12 +20,22 @@ export class GenerateEntryUseCase implements IGenerateEntryUseCase {
       return { success: 0, message: "Ticket ya utilizado" };
     }
 
-    const payload = {
-      ticketNumber: input.ticketNumber,
+    const alphabet = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+    const entryCode = customAlphabet(alphabet, 9)();
+    const expiresAt = Date.now() + 30000;
+
+    const updatedTicket = {
+      ...ticket,
+      entryCode,
+      entryCodeExpiresAt: expiresAt,
     };
 
-    const token = this.jwtService.generateAccessToken(payload, 60);
+    await this.ticketRepository.update(updatedTicket);
 
-    return { success: 1, message: "Token generado correctamente", data: { token } };
+    this.logger.info("Entry code generated successfully", { ticketNumber: ticket.ticketNumber, entryCode, expiresAt });
+
+    const token = `${ticket.ticketNumber}:${entryCode}:${expiresAt}`;
+
+    return { success: 1, message: "Código de entrada generado correctamente", data: { token } };
   }
 }

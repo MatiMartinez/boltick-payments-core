@@ -11,4 +11,14 @@ export class TicketDynamoRepository implements ITicketRepository {
       return null;
     }
   }
+
+  async update(ticket: TicketEntity): Promise<void> {
+    const { walletAddress, createdAt, ...rest } = ticket;
+
+    try {
+      await TicketModel.update({ walletAddress, createdAt }, rest);
+    } catch (error) {
+      throw new Error(`Error updating ticket: ${error}`);
+    }
+  }
 }
