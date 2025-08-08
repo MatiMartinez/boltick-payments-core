@@ -1,6 +1,6 @@
-import { NFT, Payment } from "@domain/Payment";
+import { NFT, PaymentEntity } from "@domain/entities/PaymentEntity";
 
-export type CreatePaymentInput = Pick<Payment, "userId" | "eventId" | "eventName" | "walletPublicKey" | "provider" | "prName"> & {
+export type CreatePaymentInput = Pick<PaymentEntity, "userId" | "eventId" | "eventName" | "walletPublicKey" | "provider" | "prName"> & {
   nfts: NFTInput[];
 };
 

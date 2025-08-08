@@ -26,9 +26,7 @@ export class SolanaService implements ISolanaService {
 
       const myAssets = assets.filter((asset) => this.isCreatedByMe(asset));
 
-      console.log(
-        `Found ${assets.length} total assets, ${myAssets.length} are mine`
-      );
+      console.log(`Found ${assets.length} total assets, ${myAssets.length} are mine`);
 
       return myAssets.map((asset) => this.convertAssetToUserNFT(asset));
     } catch (error) {
@@ -68,9 +66,7 @@ export class SolanaService implements ISolanaService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(
-          `HTTP ${response.status}: ${response.statusText} - ${errorText}`
-        );
+        throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
       }
 
       const data = await response.json();
@@ -91,10 +87,7 @@ export class SolanaService implements ISolanaService {
       return false;
     }
 
-    const createdByMe = asset.creators.some(
-      (creator: any) =>
-        creator.address === this.creatorAddress && creator.share > 0
-    );
+    const createdByMe = asset.creators.some((creator: any) => creator.address === this.creatorAddress && creator.share > 0);
 
     if (createdByMe) {
       console.log(`Asset ${asset.id} was created by me`);

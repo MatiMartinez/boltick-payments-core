@@ -1,11 +1,5 @@
 import { MercadoPagoConfig, Preference } from "mercadopago";
-import {
-  IMercadoPagoService,
-  GenerateLinkInput,
-  GenerateLinkOutput,
-  GeneratePreferenceInput,
-  GeneratePreferenceOutput,
-} from "@services/MercadoPago/interface";
+import { IMercadoPagoService, GenerateLinkInput, GenerateLinkOutput, GeneratePreferenceInput, GeneratePreferenceOutput } from "./interface";
 import { ILogger } from "@commons/Logger/interface";
 
 export class MercadoPagoService implements IMercadoPagoService {
@@ -15,18 +9,14 @@ export class MercadoPagoService implements IMercadoPagoService {
 
   constructor(accessToken: string, appUrl: string, logger: ILogger) {
     if (!accessToken || !appUrl) {
-      throw new Error(
-        "Missing required configurations for MercadoPagoService."
-      );
+      throw new Error("Missing required configurations for MercadoPagoService.");
     }
     this.client = new MercadoPagoConfig({ accessToken });
     this.appUrl = appUrl;
     this.logger = logger;
   }
 
-  public async generateLink(
-    input: GenerateLinkInput
-  ): Promise<GenerateLinkOutput> {
+  public async generateLink(input: GenerateLinkInput): Promise<GenerateLinkOutput> {
     const preference = new Preference(this.client);
     const preferences = this.generatePreference(input);
 
@@ -50,9 +40,7 @@ export class MercadoPagoService implements IMercadoPagoService {
     }
   }
 
-  private generatePreference(
-    input: GeneratePreferenceInput
-  ): GeneratePreferenceOutput {
+  private generatePreference(input: GeneratePreferenceInput): GeneratePreferenceOutput {
     const { email, externalReference, items } = input;
     return {
       back_urls: {

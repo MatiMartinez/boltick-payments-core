@@ -1,13 +1,12 @@
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { Readable } from 'stream';
-
-import { FileResponse } from './interface';
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import { Readable } from "stream";
+import { FileResponse } from "./interface";
 
 export class S3Service {
   private S3Client: S3Client;
 
   constructor() {
-    this.S3Client = new S3Client({ region: 'us-east-1' });
+    this.S3Client = new S3Client({ region: "us-east-1" });
   }
 
   async getMultipleJsonFiles(bucketName: string, fileKeys: string[]): Promise<FileResponse[]> {
@@ -20,7 +19,7 @@ export class S3Service {
     } catch (error) {
       const err = error as Error;
       console.error(err.message);
-      throw new Error('Error getting files from S3.');
+      throw new Error("Error getting files from S3.");
     }
   }
 
@@ -29,7 +28,7 @@ export class S3Service {
       const { Body } = await this.S3Client.send(new GetObjectCommand({ Bucket: bucketName, Key: fileKey }));
 
       if (!Body) {
-        console.error('File not found: ', fileKey);
+        console.error("File not found: ", fileKey);
         return null;
       }
 
@@ -46,9 +45,9 @@ export class S3Service {
   private async streamToString(stream: Readable): Promise<string> {
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = [];
-      stream.on('data', (chunk) => chunks.push(chunk));
-      stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')));
-      stream.on('error', reject);
+      stream.on("data", (chunk) => chunks.push(chunk));
+      stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
+      stream.on("error", reject);
     });
   }
 }

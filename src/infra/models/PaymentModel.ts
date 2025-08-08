@@ -1,9 +1,8 @@
 import * as dynamoose from "dynamoose";
 import { Item } from "dynamoose/dist/Item";
+import { PaymentEntity } from "@domain/entities/PaymentEntity";
 
-import { Payment } from "@domain/Payment";
-
-interface PaymentDocument extends Payment, Item {}
+interface PaymentDocument extends PaymentEntity, Item {}
 
 const NFTSchema = new dynamoose.Schema({
   id: { type: String, required: true },
@@ -33,11 +32,7 @@ const PaymentSchema = new dynamoose.Schema({
   eventId: { type: String, required: true },
   eventName: { type: String, required: true },
   nfts: { type: Array, schema: [{ type: Object, schema: NFTSchema }] },
-  paymentDetails: {
-    type: Object,
-    required: false,
-    schema: PaymentDetailsSchema,
-  },
+  paymentDetails: { type: Object, required: false, schema: PaymentDetailsSchema },
   paymentStatus: { type: String, required: true },
   prName: { type: String, required: true },
   provider: { type: String, required: true },
@@ -48,8 +43,4 @@ const PaymentSchema = new dynamoose.Schema({
 
 const tableName = `PAYMENTS_${process.env.ENV}`;
 
-export const PaymentModel = dynamoose.model<PaymentDocument>(
-  tableName,
-  PaymentSchema,
-  { throughput: "ON_DEMAND" }
-);
+export const PaymentModel = dynamoose.model<PaymentDocument>(tableName, PaymentSchema, { throughput: "ON_DEMAND" });

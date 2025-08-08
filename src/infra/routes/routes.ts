@@ -1,5 +1,4 @@
 import express from "express";
-
 import { Container } from "@containers/Container";
 
 const router = express.Router();

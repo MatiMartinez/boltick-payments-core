@@ -1,6 +1,5 @@
 import { v4 as uuid } from "uuid";
-
-import { NFT, Payment } from "@domain/Payment";
+import { NFT, PaymentEntity } from "@domain/entities/PaymentEntity";
 import { PaymentRepository } from "@repositories/PaymentRepository";
 import { TicketCountRepository } from "@repositories/TicketCountRepository";
 import { MercadoPagoService } from "@services/MercadoPago/MercadoPagoService";
@@ -27,7 +26,7 @@ export class CreatePaymentUseCase {
 
     const currentTime = new Date().getTime();
 
-    const payment: Payment = {
+    const payment: PaymentEntity = {
       ...input,
       id: uuid(),
       createdAt: currentTime,
@@ -107,9 +106,7 @@ export class CreatePaymentUseCase {
           ticket: officialTicket,
           recibido: nft.unitPrice,
         });
-        throw new Error(
-          "El precio del ticket no coincide con el precio oficial"
-        );
+        throw new Error("El precio del ticket no coincide con el precio oficial");
       }
     }
   }

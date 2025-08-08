@@ -1,4 +1,4 @@
-export interface Payment {
+export interface PaymentEntity {
   id: string;
   callbackStatus: Status;
   createdAt: number;

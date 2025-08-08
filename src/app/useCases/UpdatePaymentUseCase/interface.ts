@@ -1,4 +1,4 @@
-import { Status } from "@domain/Payment";
+import { Status } from "@domain/entities/PaymentEntity";
 
 export interface UpdatePaymentInput {
   id: string;

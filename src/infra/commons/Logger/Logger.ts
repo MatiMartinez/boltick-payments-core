@@ -1,5 +1,5 @@
-import { ILogger } from "./interface";
 import { v4 as uuidv4 } from "uuid";
+import { ILogger } from "./interface";
 
 export class Logger implements ILogger {
   private static instance: Logger;
