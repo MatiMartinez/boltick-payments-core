@@ -9,7 +9,7 @@ export interface GenerateLinkInput {
     id: string;
     quantity: number;
     title: string;
-    unitPrice: number;
+    unit_price: number;
   }>;
 }
 
@@ -24,7 +24,7 @@ export interface GeneratePreferenceInput {
     id: string;
     quantity: number;
     title: string;
-    unitPrice: number;
+    unit_price: number;
   }>;
 }
 

@@ -1,27 +1,33 @@
 import { v4 as uuid } from "uuid";
 import { NFT, PaymentEntity } from "@domain/entities/PaymentEntity";
+import { EventEntity } from "@domain/entities/EventEntity";
 import { PaymentRepository } from "@repositories/PaymentRepository";
 import { TicketCountRepository } from "@repositories/TicketCountRepository";
 import { MercadoPagoService } from "@services/MercadoPago/MercadoPagoService";
 import { CreatePaymentInput, CreatePaymentOutput, NFTInput } from "./interface";
-import { events } from "@db/events";
+import { IEventRepository } from "@domain/repositories/IEventRepository";
+import { ILogger } from "@commons/Logger/interface";
 
 export class CreatePaymentUseCase {
   constructor(
     private PaymentRepository: PaymentRepository,
     private TicketCountRepository: TicketCountRepository,
-    private MercadoPagoService: MercadoPagoService
+    private EventRepository: IEventRepository,
+    private MercadoPagoService: MercadoPagoService,
+    private Logger: ILogger
   ) {}
 
   async execute(input: CreatePaymentInput): Promise<CreatePaymentOutput> {
-    this.validateNFTPrices(input.eventId, input.nfts);
+    const event = await this.EventRepository.findById(input.eventId);
+    if (!event) {
+      throw new Error("Evento no encontrado");
+    }
 
-    const isValid = await this.validateTicketCount(input.eventId);
+    this.validateNFTPrices(event, input.nfts);
+
+    const isValid = await this.validateTicketCount(event);
     if (!isValid) {
-      return {
-        success: 0,
-        message: "Lo sentimos, las entradas se agotaron",
-      };
+      return { success: 0, message: "Lo sentimos, las entradas se agotaron" };
     }
 
     const currentTime = new Date().getTime();
@@ -38,24 +44,18 @@ export class CreatePaymentUseCase {
 
     await this.PaymentRepository.createPayment(payment);
 
-    const items = input.nfts.map((nft) => ({
-      id: uuid(),
-      title: `${nft.collectionName} ${nft.type}`,
-      quantity: nft.quantity,
-      unitPrice: nft.unitPrice,
-    }));
-
     const link = await this.MercadoPagoService.generateLink({
       email: payment.userId,
       externalReference: payment.id,
-      items,
+      items: input.nfts.map((nft) => ({
+        id: uuid(),
+        title: `${nft.collectionName} ${nft.type}`,
+        quantity: nft.quantity,
+        unit_price: nft.unitPrice,
+      })),
     });
 
-    return {
-      success: 1,
-      message: "Pago creado correctamente",
-      data: { url: link.url },
-    };
+    return { success: 1, message: "Pago creado correctamente", data: { url: link.url } };
   }
 
   private generateNFTs(input: NFTInput[]): NFT[] {
@@ -84,38 +84,32 @@ export class CreatePaymentUseCase {
     return generatedNFTs;
   }
 
-  private validateNFTPrices(eventId: string, nfts: NFTInput[]): void {
-    const event = events.find((e) => e.id === eventId);
-    if (!event) {
-      console.error("Evento no encontrado", { eventId });
-      throw new Error("Evento no encontrado");
-    }
-
+  private validateNFTPrices(event: EventEntity, nfts: NFTInput[]): void {
     for (const nft of nfts) {
       const officialTicket = event.tickets.find((t) => t.name === nft.type);
 
       if (!officialTicket) {
-        console.error("Ticket no encontrado para el type especificado", {
-          type: nft.type,
-        });
+        this.Logger.error("[CreatePaymentUseCase] Ticket no encontrado para el type especificado", { type: nft.type });
         throw new Error("El tipo de ticket no es válido para este evento");
       }
 
       if (officialTicket.price !== nft.unitPrice) {
-        console.warn("Intento de compra con precio modificado", {
+        this.Logger.warn("[CreatePaymentUseCase] Intento de compra con precio modificado", {
           ticket: officialTicket,
-          recibido: nft.unitPrice,
+          recibido: nft,
         });
         throw new Error("El precio del ticket no coincide con el precio oficial");
       }
     }
   }
 
-  private async validateTicketCount(eventId: string): Promise<boolean> {
-    const count = await this.TicketCountRepository.getCountByEventId(eventId);
-    if (count >= 200) {
+  private async validateTicketCount(event: EventEntity): Promise<boolean> {
+    const soldTickets = await this.TicketCountRepository.getCountByEventId(event.id);
+
+    if (soldTickets >= event.availableTickets) {
       return false;
     }
+
     return true;
   }
 }

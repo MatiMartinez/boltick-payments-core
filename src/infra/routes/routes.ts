@@ -5,11 +5,15 @@ const router = express.Router();
 
 const PaymentController = Container.getInstance().getPaymentController();
 const TicketController = Container.getInstance().getTicketController();
+const EventController = Container.getInstance().getEventController();
 
 router.post("/payments/create-payment-link", (req, res) => PaymentController.CreatePayment(req, res));
 router.post("/payments/update-payment-callback", (req, res) => PaymentController.UpdatePayment(req, res));
 
 router.get("/tickets/get-tickets/:id", (req, res) => TicketController.GetTickets(req, res));
 router.post("/tickets/generate-entry", (req, res) => TicketController.GenerateEntry(req, res));
+
+router.get("/events", (req, res) => EventController.GetAllEvents(req, res));
+router.get("/events/:id", (req, res) => EventController.GetEventById(req, res));
 
 export { router };

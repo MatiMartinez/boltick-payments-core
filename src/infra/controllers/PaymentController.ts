@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
-import { CreatePaymentUseCase } from "@useCases/CreatePaymentUseCase/CreatePaymentUseCase";
-import { UpdatePaymentUseCase } from "@useCases/UpdatePaymentUseCase/UpdatePaymentUseCase";
+import { CreatePaymentUseCase } from "@useCases/Payment/CreatePaymentUseCase/CreatePaymentUseCase";
+import { UpdatePaymentUseCase } from "@useCases/Payment/UpdatePaymentUseCase/UpdatePaymentUseCase";
 
 export class PaymentController {
   constructor(

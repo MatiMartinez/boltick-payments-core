@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
-import { GetTicketsUseCase } from "@useCases/GetTicketsUseCase/GetTicketsUseCase";
-import { IGenerateEntryUseCase } from "@useCases/GenerateEntryUseCase/interface";
+import { GetTicketsUseCase } from "@useCases/Ticket/GetTicketsUseCase/GetTicketsUseCase";
+import { IGenerateEntryUseCase } from "@useCases/Ticket/GenerateEntryUseCase/interface";
 
 export class TicketController {
   constructor(
