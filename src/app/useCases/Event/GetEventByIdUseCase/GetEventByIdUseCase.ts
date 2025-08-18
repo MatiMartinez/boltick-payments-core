@@ -15,6 +15,6 @@ export class GetEventByIdUseCase implements IGetEventByIdUseCase {
       return { success: 0, message: "Evento no encontrado" };
     }
 
-    return { success: 1, message: "Evento encontrado correctamente", data: { event } };
+    return { success: 1, message: "Evento obtenido correctamente", data: event };
   }
 }

@@ -32,7 +32,11 @@ export class GenerateEntryUseCase implements IGenerateEntryUseCase {
 
     await this.ticketRepository.update(updatedTicket);
 
-    this.logger.info("Entry code generated successfully", { ticketNumber: ticket.ticketNumber, entryCode, expiresAt });
+    this.logger.info("[GenerateEntryUseCase] Entry code generated successfully", {
+      ticketNumber: ticket.ticketNumber,
+      entryCode,
+      expiresAt,
+    });
 
     const token = `${ticket.ticketNumber}:${entryCode}:${expiresAt}`;
 

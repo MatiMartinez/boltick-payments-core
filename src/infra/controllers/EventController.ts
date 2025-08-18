@@ -13,7 +13,7 @@ export class EventController {
       const eventId = req.params.id as string;
       const result = await this.GetEventByIdUseCase.execute({ eventId });
 
-      if (!result.data?.event) {
+      if (!result.data) {
         res.status(404).json({ error: "Evento no encontrado" });
         return;
       }

@@ -6,6 +6,6 @@ export class GetAllEventsUseCase implements IGetAllEventsUseCase {
 
   public async execute(): Promise<IGetAllEventsUseCaseOutput> {
     const events = await this.eventRepository.findAll();
-    return { success: 1, message: "Eventos obtenidos correctamente", data: { events } };
+    return { success: 1, message: "Eventos obtenidos correctamente", data: events };
   }
 }
