@@ -1,6 +1,6 @@
-import { IGetAllEventsUseCase, IGetAllEventsUseCaseOutput } from "./interface";
+import { IGetAllEventsUseCase, IGetAllEventsUseCaseOutput, EventWithStatus } from "./interface";
 import { IEventRepository } from "@domain/repositories/IEventRepository";
-import { EventEntity } from "@domain/entities/EventEntity";
+import { toZonedTime } from "date-fns-tz";
 
 export class GetAllEventsUseCase implements IGetAllEventsUseCase {
   constructor(private eventRepository: IEventRepository) {}
@@ -8,16 +8,23 @@ export class GetAllEventsUseCase implements IGetAllEventsUseCase {
   public async execute(): Promise<IGetAllEventsUseCaseOutput> {
     const events = await this.eventRepository.findAll();
     
-    const currentTimestamp = Date.now();
+    const now = new Date();
+    const mendozaTime = toZonedTime(now, "America/Argentina/Mendoza");
+    const currentTimestamp = mendozaTime.getTime();
     
-    const activeEvents: EventEntity[] = [];
-    const finishedEvents: EventEntity[] = [];
+    const activeEvents: EventWithStatus[] = [];
+    const finishedEvents: EventWithStatus[] = [];
     
     events.forEach(event => {
-      if (event.endDate > currentTimestamp) {
-        activeEvents.push(event);
+      const eventWithStatus: EventWithStatus = {
+        ...event,
+        isActive: event.endDate > currentTimestamp ? 1 : 0
+      };
+      
+      if (eventWithStatus.isActive === 1) {
+        activeEvents.push(eventWithStatus);
       } else {
-        finishedEvents.push(event);
+        finishedEvents.push(eventWithStatus);
       }
     });
     

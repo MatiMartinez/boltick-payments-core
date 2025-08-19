@@ -7,5 +7,9 @@ export interface IGetAllEventsUseCase {
 export interface IGetAllEventsUseCaseOutput {
   success: number;
   message: string;
-  data?: EventEntity[];
+  data?: EventWithStatus[];
+}
+
+export interface EventWithStatus extends EventEntity {
+  isActive: number;
 }

@@ -1,4 +1,5 @@
-import { IGetEventByIdUseCase, IGetEventByIdUseCaseInput, IGetEventByIdUseCaseOutput } from "./interface";
+import { toZonedTime } from "date-fns-tz";
+import { EventWithStatus, IGetEventByIdUseCase, IGetEventByIdUseCaseInput, IGetEventByIdUseCaseOutput } from "./interface";
 import { IEventRepository } from "@domain/repositories/IEventRepository";
 
 export class GetEventByIdUseCase implements IGetEventByIdUseCase {
@@ -15,6 +16,15 @@ export class GetEventByIdUseCase implements IGetEventByIdUseCase {
       return { success: 0, message: "Evento no encontrado" };
     }
 
-    return { success: 1, message: "Evento obtenido correctamente", data: event };
+    const now = new Date();
+    const mendozaTime = toZonedTime(now, "America/Argentina/Mendoza");
+    const currentTimestamp = mendozaTime.getTime();
+
+    const eventWithStatus: EventWithStatus = {
+      ...event,
+      isActive: event.endDate > currentTimestamp ? 1 : 0,
+    };
+
+    return { success: 1, message: "Evento obtenido correctamente", data: eventWithStatus };
   }
 }

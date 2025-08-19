@@ -11,5 +11,9 @@ export interface IGetEventByIdUseCaseInput {
 export interface IGetEventByIdUseCaseOutput {
   success: number;
   message: string;
-  data?: EventEntity;
+  data?: EventWithStatus;
+}
+
+export interface EventWithStatus extends EventEntity {
+  isActive: number;
 }
