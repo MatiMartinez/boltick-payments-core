@@ -36,4 +36,4 @@ interface PaymentDetails {
 }
 
 export type Status = "Pending" | "Approved" | "Rejected";
-export type Provider = "Mercado Pago";
+export type Provider = "Mercado Pago" | "Gratuito";

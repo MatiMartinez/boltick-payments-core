@@ -1,11 +1,11 @@
 import { S3Service } from "@services/S3/S3Service";
-import { SolanaService } from "@services/Solana/SolanaService";
+import { ISolanaService } from "@services/Solana/interface";
 import { GetTicketsInput, GetTicketsOutput, UserTicket } from "./interface";
 
 export class GetTicketsUseCase {
   constructor(
     private S3Service: S3Service,
-    private SolanaService: SolanaService
+    private SolanaService: ISolanaService
   ) {}
 
   async execute(input: GetTicketsInput): Promise<GetTicketsOutput> {

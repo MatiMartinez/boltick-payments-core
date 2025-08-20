@@ -1,8 +1,8 @@
-import { PaymentRepository } from "@repositories/PaymentRepository";
 import { UpdatePaymentInput, UpdatePaymentOutput } from "./interface";
+import { IPaymentRepository } from "@domain/repositories/IPaymentRepository";
 
 export class UpdatePaymentUseCase {
-  constructor(private PaymentRepository: PaymentRepository) {}
+  constructor(private PaymentRepository: IPaymentRepository) {}
 
   async execute(input: UpdatePaymentInput): Promise<UpdatePaymentOutput> {
     const payment = await this.PaymentRepository.getPaymentById(input.id);
@@ -12,11 +12,7 @@ export class UpdatePaymentUseCase {
     if (payment.callbackStatus !== "Pending") {
       return { result: 0, message: "El callback ya fue procesado previamente" };
     }
-    await this.PaymentRepository.updatePaymentCallbackStatus(
-      payment.userId,
-      payment.createdAt,
-      input.callbackStatus
-    );
+    await this.PaymentRepository.updatePaymentCallbackStatus(payment.userId, payment.createdAt, input.callbackStatus);
     return { result: 1, message: "Callback actualizado correctamente" };
   }
 }

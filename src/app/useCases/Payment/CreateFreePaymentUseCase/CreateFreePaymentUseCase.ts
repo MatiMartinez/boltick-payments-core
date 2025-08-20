@@ -3,21 +3,21 @@ import { NFT, PaymentEntity } from "@domain/entities/PaymentEntity";
 import { EventEntity } from "@domain/entities/EventEntity";
 import { IPaymentRepository } from "@domain/repositories/IPaymentRepository";
 import { TicketCountRepository } from "@repositories/TicketCountRepository";
-import { CreatePaymentInput, CreatePaymentOutput, NFTInput } from "./interface";
+import { CreateFreePaymentInput, CreateFreePaymentOutput, NFTInput, ICreateFreePaymentUseCase } from "./interface";
 import { IEventRepository } from "@domain/repositories/IEventRepository";
-import { IMercadoPagoService } from "@services/MercadoPago/interface";
+import { IWebhookService } from "@services/Webhook/interface";
 import { ILogger } from "@commons/Logger/interface";
 
-export class CreatePaymentUseCase {
+export class CreateFreePaymentUseCase implements ICreateFreePaymentUseCase {
   constructor(
     private PaymentRepository: IPaymentRepository,
     private TicketCountRepository: TicketCountRepository,
     private EventRepository: IEventRepository,
-    private MercadoPagoService: IMercadoPagoService,
+    private WebhookService: IWebhookService,
     private Logger: ILogger
   ) {}
 
-  async execute(input: CreatePaymentInput): Promise<CreatePaymentOutput> {
+  async execute(input: CreateFreePaymentInput): Promise<CreateFreePaymentOutput> {
     const event = await this.EventRepository.findById(input.eventId);
     if (!event) {
       throw new Error("Evento no encontrado");
@@ -38,24 +38,22 @@ export class CreatePaymentUseCase {
       createdAt: currentTime,
       updatedAt: currentTime,
       nfts: this.generateNFTs(input.nfts),
-      callbackStatus: "Pending",
+      callbackStatus: "Approved",
       paymentStatus: "Pending",
+      provider: "Gratuito",
     };
 
     await this.PaymentRepository.createPayment(payment);
 
-    const link = await this.MercadoPagoService.generateLink({
-      email: payment.userId,
-      externalReference: payment.id,
-      items: input.nfts.map((nft) => ({
-        id: uuid(),
-        title: `${nft.collectionName} ${nft.type}`,
-        quantity: nft.quantity,
-        unit_price: nft.unitPrice,
-      })),
-    });
+    const success = await this.WebhookService.updateFreePayment(payment.id);
+    if (!success) {
+      this.Logger.error("[CreateFreePaymentUseCase] Error al actualizar el pago gratuito", { id: payment.id });
+      return { success: 0, message: "Ocurrio un error al solicitar tus entradas" };
+    }
 
-    return { success: 1, message: "Pago creado correctamente", data: { url: link.url } };
+    this.Logger.info("[CreateFreePaymentUseCase] Pago gratuito creado exitosamente", JSON.stringify(payment, null, 2));
+
+    return { success: 1, message: "Pago gratuito creado correctamente" };
   }
 
   private generateNFTs(input: NFTInput[]): NFT[] {
@@ -89,12 +87,12 @@ export class CreatePaymentUseCase {
       const officialTicket = event.tickets.find((t) => t.name === nft.type);
 
       if (!officialTicket) {
-        this.Logger.error("[CreatePaymentUseCase] Ticket no encontrado para el type especificado", { type: nft.type });
+        this.Logger.error("[CreateFreePaymentUseCase] Ticket no encontrado para el type especificado", { type: nft.type });
         throw new Error("El tipo de ticket no es válido para este evento");
       }
 
       if (officialTicket.price !== nft.unitPrice) {
-        this.Logger.warn("[CreatePaymentUseCase] Intento de compra con precio modificado", {
+        this.Logger.warn("[CreateFreePaymentUseCase] Intento de compra con precio modificado", {
           ticket: officialTicket,
           recibido: nft,
         });
