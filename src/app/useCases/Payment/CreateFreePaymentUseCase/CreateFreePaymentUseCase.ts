@@ -53,7 +53,7 @@ export class CreateFreePaymentUseCase implements ICreateFreePaymentUseCase {
 
     this.Logger.info("[CreateFreePaymentUseCase] Pago gratuito creado exitosamente", JSON.stringify(payment, null, 2));
 
-    return { success: 1, message: "Pago gratuito creado correctamente" };
+    return { success: 1, message: "Pago gratuito creado correctamente", data: { id: payment.id } };
   }
 
   private generateNFTs(input: NFTInput[]): NFT[] {

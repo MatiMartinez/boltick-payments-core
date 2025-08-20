@@ -13,4 +13,5 @@ export type NFTInput = Pick<NFT, "collectionName" | "collectionSymbol" | "imageU
 export interface CreateFreePaymentOutput {
   success: number;
   message: string;
+  data?: { id: string };
 }
