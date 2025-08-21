@@ -12,6 +12,7 @@ router.post("/payments/update-payment-callback", (req, res) => PaymentController
 router.post("/payments/create-free-payment", (req, res) => PaymentController.CreateFreePayment(req, res));
 
 router.get("/tickets/get-tickets/:id", (req, res) => TicketController.GetTickets(req, res));
+router.get("/tickets/get-tickets-by-wallet/:id", (req, res) => TicketController.GetTicketsByWallet(req, res));
 router.post("/tickets/generate-entry", (req, res) => TicketController.GenerateEntry(req, res));
 
 router.get("/events", (req, res) => EventController.GetAllEvents(req, res));

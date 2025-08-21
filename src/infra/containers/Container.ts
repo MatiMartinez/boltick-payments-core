@@ -21,6 +21,8 @@ import { CreatePaymentUseCase } from "@useCases/Payment/CreatePaymentUseCase/Cre
 import { UpdatePaymentUseCase } from "@useCases/Payment/UpdatePaymentUseCase/UpdatePaymentUseCase";
 import { CreateFreePaymentUseCase } from "@useCases/Payment/CreateFreePaymentUseCase/CreateFreePaymentUseCase";
 import { GetTicketsUseCase } from "@useCases/Ticket/GetTicketsUseCase/GetTicketsUseCase";
+import { IGetTicketsByWalletUseCase } from "@useCases/Ticket/GetTicketsByWalletUseCase.ts/interface";
+import { GetTicketsByWalletUseCase } from "@useCases/Ticket/GetTicketsByWalletUseCase.ts/GetTicketsByWalletUseCase";
 import { IGenerateEntryUseCase } from "@useCases/Ticket/GenerateEntryUseCase/interface";
 import { GenerateEntryUseCase } from "@useCases/Ticket/GenerateEntryUseCase/GenerateEntryUseCase";
 import { IGetEventByIdUseCase } from "@useCases/Event/GetEventByIdUseCase/interface";
@@ -35,7 +37,7 @@ import { EventController } from "@controllers/EventController";
 export class Container {
   private static instance: Container;
 
-  private logger: ILogger;
+  private Logger: ILogger;
 
   private MercadoPagoService: IMercadoPagoService;
   private S3Service: S3Service;
@@ -51,6 +53,7 @@ export class Container {
   private UpdatePaymentUseCase: UpdatePaymentUseCase;
   private CreateFreePaymentUseCase: CreateFreePaymentUseCase;
   private GetTicketsUseCase: GetTicketsUseCase;
+  private GetTicketsByWalletUseCase: IGetTicketsByWalletUseCase;
   private GenerateEntryUseCase: IGenerateEntryUseCase;
   private GetEventByIdUseCase: IGetEventByIdUseCase;
   private GetAllEventsUseCase: IGetAllEventsUseCase;
@@ -78,24 +81,24 @@ export class Container {
       throw new Error("ENV environment variable is required");
     }
 
-    this.logger = Logger.getInstance();
+    this.Logger = Logger.getInstance();
 
-    this.MercadoPagoService = new MercadoPagoService(accessToken, appUrl, this.logger);
+    this.MercadoPagoService = new MercadoPagoService(accessToken, appUrl, this.Logger);
     this.S3Service = new S3Service();
     this.SolanaService = new SolanaService(apiKey);
-    this.WebhookService = new WebhookService(env, this.logger);
+    this.WebhookService = new WebhookService(env, this.Logger);
 
-    this.PaymentRepository = new PaymentDynamoRepository(this.logger);
+    this.PaymentRepository = new PaymentDynamoRepository(this.Logger);
     this.TicketCountRepository = new TicketCountRepository();
-    this.TicketRepository = new TicketDynamoRepository();
-    this.EventRepository = new EventDynamoRepository(this.logger);
+    this.TicketRepository = new TicketDynamoRepository(this.Logger);
+    this.EventRepository = new EventDynamoRepository(this.Logger);
 
     this.CreatePaymentUseCase = new CreatePaymentUseCase(
       this.PaymentRepository,
       this.TicketCountRepository,
       this.EventRepository,
       this.MercadoPagoService,
-      this.logger
+      this.Logger
     );
     this.UpdatePaymentUseCase = new UpdatePaymentUseCase(this.PaymentRepository);
     this.CreateFreePaymentUseCase = new CreateFreePaymentUseCase(
@@ -103,15 +106,16 @@ export class Container {
       this.TicketCountRepository,
       this.EventRepository,
       this.WebhookService,
-      this.logger
+      this.Logger
     );
     this.GetTicketsUseCase = new GetTicketsUseCase(this.S3Service, this.SolanaService);
-    this.GenerateEntryUseCase = new GenerateEntryUseCase(this.TicketRepository, this.logger);
+    this.GetTicketsByWalletUseCase = new GetTicketsByWalletUseCase(this.TicketRepository);
+    this.GenerateEntryUseCase = new GenerateEntryUseCase(this.TicketRepository, this.Logger);
     this.GetEventByIdUseCase = new GetEventByIdUseCase(this.EventRepository);
     this.GetAllEventsUseCase = new GetAllEventsUseCase(this.EventRepository);
 
-    this.PaymentController = new PaymentController(this.CreatePaymentUseCase, this.UpdatePaymentUseCase, this.CreateFreePaymentUseCase, this.logger);
-    this.TicketController = new TicketController(this.GetTicketsUseCase, this.GenerateEntryUseCase);
+    this.PaymentController = new PaymentController(this.CreatePaymentUseCase, this.UpdatePaymentUseCase, this.CreateFreePaymentUseCase, this.Logger);
+    this.TicketController = new TicketController(this.GetTicketsUseCase, this.GetTicketsByWalletUseCase, this.GenerateEntryUseCase, this.Logger);
     this.EventController = new EventController(this.GetEventByIdUseCase, this.GetAllEventsUseCase);
   }
 

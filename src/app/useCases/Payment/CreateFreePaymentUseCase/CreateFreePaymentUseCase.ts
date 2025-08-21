@@ -9,7 +9,7 @@ import { IWebhookService } from "@services/Webhook/interface";
 import { ILogger } from "@commons/Logger/interface";
 
 export class CreateFreePaymentUseCase implements ICreateFreePaymentUseCase {
-  private LIMITED_EVENTS = ["primavera-fest-2025"];
+  private LIMITED_EVENTS = ["primavera-en-el-bosque-2025"];
 
   constructor(
     private PaymentRepository: IPaymentRepository,
