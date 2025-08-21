@@ -9,6 +9,8 @@ import { IWebhookService } from "@services/Webhook/interface";
 import { ILogger } from "@commons/Logger/interface";
 
 export class CreateFreePaymentUseCase implements ICreateFreePaymentUseCase {
+  private LIMITED_EVENTS = ["primavera-fest-2025"];
+
   constructor(
     private PaymentRepository: IPaymentRepository,
     private TicketCountRepository: TicketCountRepository,
@@ -28,6 +30,24 @@ export class CreateFreePaymentUseCase implements ICreateFreePaymentUseCase {
     const isValid = await this.validateTicketCount(event);
     if (!isValid) {
       return { success: 0, message: "Lo sentimos, las entradas se agotaron" };
+    }
+
+    if (this.LIMITED_EVENTS.includes(input.eventId)) {
+      const walletPayments = await this.PaymentRepository.getPaymentsByWallet(input.walletPublicKey);
+      const approvedWalletPayments = walletPayments.filter((payment) => payment.paymentStatus === "Approved" && this.LIMITED_EVENTS.includes(payment.eventId));
+
+      const totalWalletTickets = approvedWalletPayments.reduce((acc, payment) => {
+        return acc + payment.nfts.length;
+      }, 0);
+
+      if (totalWalletTickets + input.nfts.reduce((sum, nft) => sum + nft.quantity, 0) > 2) {
+        this.Logger.warn("[CreateFreePaymentUseCase] Intento de compra con límite de entradas por usuario", {
+          walletPublicKey: input.walletPublicKey,
+          totalWalletTickets,
+          inputNFTs: input.nfts,
+        });
+        return { success: 0, message: "Tu compra supera el límite de entradas por usuario" };
+      }
     }
 
     const currentTime = new Date().getTime();

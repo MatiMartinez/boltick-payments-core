@@ -38,4 +38,17 @@ export class PaymentDynamoRepository implements IPaymentRepository {
       throw error;
     }
   }
+
+  async getPaymentsByWallet(walletPublicKey: string) {
+    try {
+      const response = await PaymentModel.query("walletPublicKey").eq(walletPublicKey).using("walletPublicKeyIndex").exec();
+      return response;
+    } catch (error) {
+      this.logger.error("[PaymentDynamoRepository] Error al buscar pagos por wallet", {
+        walletPublicKey,
+        error: (error as Error).message,
+      });
+      throw error;
+    }
+  }
 }
