@@ -2,16 +2,16 @@ import { v4 as uuid } from "uuid";
 import { NFT, PaymentEntity } from "@domain/entities/PaymentEntity";
 import { EventEntity } from "@domain/entities/EventEntity";
 import { IPaymentRepository } from "@domain/repositories/IPaymentRepository";
-import { TicketCountRepository } from "@repositories/TicketCountRepository";
 import { CreatePaymentInput, CreatePaymentOutput, NFTInput } from "./interface";
 import { IEventRepository } from "@domain/repositories/IEventRepository";
 import { IMercadoPagoService } from "@services/MercadoPago/interface";
 import { ILogger } from "@commons/Logger/interface";
+import { ITicketCountRepository } from "@domain/repositories/ITicketCountRepository";
 
 export class CreatePaymentUseCase {
   constructor(
     private PaymentRepository: IPaymentRepository,
-    private TicketCountRepository: TicketCountRepository,
+    private TicketCountRepository: ITicketCountRepository,
     private EventRepository: IEventRepository,
     private MercadoPagoService: IMercadoPagoService,
     private Logger: ILogger
@@ -25,7 +25,7 @@ export class CreatePaymentUseCase {
 
     this.validateNFTPrices(event, input.nfts);
 
-    const isValid = await this.validateTicketCount(event);
+    const isValid = await this.validateTicketCount(event, input.nfts);
     if (!isValid) {
       return { success: 0, message: "Lo sentimos, las entradas se agotaron" };
     }
@@ -103,11 +103,49 @@ export class CreatePaymentUseCase {
     }
   }
 
-  private async validateTicketCount(event: EventEntity): Promise<boolean> {
-    const soldTickets = await this.TicketCountRepository.getCountByEventId(event.id);
+  private async validateTicketCount(event: EventEntity, nfts: NFTInput[]): Promise<boolean> {
+    const ticketCount = await this.TicketCountRepository.getCountByEventId(event.id);
 
-    if (soldTickets >= event.availableTickets) {
-      return false;
+    // Agrupar NFTs por tipo para obtener la cantidad total solicitada de cada tipo
+    const groupByType = nfts.reduce(
+      (acc, curr) => {
+        acc[curr.type] = (acc[curr.type] || 0) + curr.quantity;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+
+    // Validar cada tipo de ticket solicitado
+    for (const type in groupByType) {
+      const requestedQuantity = groupByType[type];
+
+      // Buscar la cantidad de tickets disponibles para el tipo de ticket
+      const eventTicket = event.tickets.find((t) => t.name === type);
+      if (!eventTicket) {
+        this.Logger.error("[CreatePaymentUseCase] Tipo de ticket no encontrado en el evento", { type, event });
+        return false;
+      }
+
+      // Obtener la cantidad actual vendida de este tipo
+      const ticketCountType = ticketCount.count.find((t) => t.type === type);
+      if (!ticketCountType) {
+        this.Logger.error("[CreatePaymentUseCase] No se encontró el contador para el tipo de ticket", { type, eventId: event.id });
+        return false;
+      }
+      const currentSoldCount = ticketCountType.count;
+
+      // Verificar si hay suficientes tickets disponibles
+      const totalAfterPurchase = currentSoldCount + requestedQuantity;
+      if (totalAfterPurchase > eventTicket.availableTickets) {
+        this.Logger.warn("[CreatePaymentUseCase] No hay suficientes tickets disponibles", {
+          type,
+          requestedQuantity,
+          currentSoldCount,
+          availableTickets: eventTicket.availableTickets,
+          totalAfterPurchase,
+        });
+        return false;
+      }
     }
 
     return true;
