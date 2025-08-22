@@ -48,7 +48,7 @@ export class MercadoPagoService implements IMercadoPagoService {
         pending: `${this.appUrl}/payment/processing`,
         success: `${this.appUrl}/payment/success`,
       },
-      auto_return: "Approved",
+      auto_return: "approved",
       external_reference: externalReference,
       items,
       payer: { email: email },
