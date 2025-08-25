@@ -67,18 +67,22 @@ export class Container {
     const appUrl = process.env.APP_URL as string;
     const apiKey = process.env.SOLANA_API_KEY as string;
     const env = process.env.ENV as "QA" | "PROD";
+    const web3AuthClientId = process.env.WEB3AUTH_CLIENT_ID as string;
 
     if (!accessToken) {
-      throw new Error("MERCADOPAGO_ACCESS_TOKEN environment variable is required");
+      throw new Error("Falta la variable de entorno MERCADOPAGO_ACCESS_TOKEN");
     }
     if (!appUrl) {
-      throw new Error("APP_URL environment variable is required");
+      throw new Error("Falta la variable de entorno APP_URL");
     }
     if (!apiKey) {
-      throw new Error("SOLANA_API_KEY environment variable is required");
+      throw new Error("Falta la variable de entorno SOLANA_API_KEY");
     }
     if (!env) {
-      throw new Error("ENV environment variable is required");
+      throw new Error("Falta la variable de entorno ENV");
+    }
+    if (!web3AuthClientId) {
+      throw new Error("Falta la variable de entorno WEB3AUTH_CLIENT_ID");
     }
 
     this.Logger = Logger.getInstance();
@@ -89,7 +93,7 @@ export class Container {
     this.WebhookService = new WebhookService(env, this.Logger);
 
     this.PaymentRepository = new PaymentDynamoRepository(this.Logger);
-    this.TicketCountRepository = new TicketCountRepository();
+    this.TicketCountRepository = new TicketCountRepository(this.Logger);
     this.TicketRepository = new TicketDynamoRepository(this.Logger);
     this.EventRepository = new EventDynamoRepository(this.Logger);
 

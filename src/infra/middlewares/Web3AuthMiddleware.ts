@@ -7,13 +7,13 @@ export const web3AuthMiddleware = async (req: Request, res: Response, next: Next
   try {
     const authToken = req.headers.authorization;
     if (!authToken || !authToken.startsWith("Bearer ")) {
-      res.status(401).json({ error: "Sin encabezado de autenticación" });
+      res.status(401).json({ error: "No tienes permisos para acceder a este recurso" });
       return;
     }
 
     const idToken = authToken.split(" ")[1];
     if (!idToken) {
-      res.status(401).json({ error: "Sin token de autenticación" });
+      res.status(401).json({ error: "No tienes permisos para acceder a este recurso" });
       return;
     }
 
@@ -28,7 +28,7 @@ export const web3AuthMiddleware = async (req: Request, res: Response, next: Next
   } catch (error) {
     console.error("Web3Auth token validation error:", error);
     res.status(401).json({
-      error: "Invalid or expired token",
+      error: "No tienes permisos para acceder a este recurso",
     });
     return;
   }
