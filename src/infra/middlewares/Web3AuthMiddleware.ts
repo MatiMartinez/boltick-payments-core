@@ -18,7 +18,7 @@ export const web3AuthMiddleware = async (req: Request, res: Response, next: Next
     }
 
     const payload = await jose.jwtVerify(idToken, JWKS, {
-      algorithms: ["RS256"],
+      algorithms: ["RS256", "ES256", "PS256"],
       issuer: "https://api-auth.web3auth.io",
       audience: process.env.WEB3AUTH_CLIENT_ID,
       clockTolerance: 60,
