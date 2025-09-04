@@ -1,10 +1,11 @@
-import serverlessExpress from '@codegenie/serverless-express';
+import serverlessExpress from "@codegenie/serverless-express";
+import { APIGatewayProxyEventV2 } from "aws-lambda";
 
-import { app } from './server';
+import { app } from "./server";
 
 let serverlessExpressInstance: any;
 
-async function setup(event: any, context: any) {
+async function setup(event: APIGatewayProxyEventV2, context: any) {
   console.log(JSON.stringify(event, null, 2));
 
   serverlessExpressInstance = serverlessExpress({ app });
