@@ -11,6 +11,8 @@ import { WebhookService } from "@services/Webhook/WebhookService";
 
 import { IPaymentRepository } from "@domain/repositories/IPaymentRepository";
 import { PaymentDynamoRepository } from "@repositories/PaymentDynamoRepository";
+import { ITokenPaymentRepository } from "@domain/repositories/ITokenPaymentRepository";
+import { TokenPaymentDynamoRepository } from "@repositories/TokenPaymentDynamoRepository";
 import { TicketCountRepository } from "@repositories/TicketCountRepository";
 import { ITicketRepository } from "@domain/repositories/ITicketRepository";
 import { TicketDynamoRepository } from "@repositories/TicketDynamoRepository";
@@ -20,6 +22,7 @@ import { EventDynamoRepository } from "@repositories/EventDynamoRepository";
 import { CreatePaymentUseCase } from "@useCases/Payment/CreatePaymentUseCase/CreatePaymentUseCase";
 import { UpdatePaymentUseCase } from "@useCases/Payment/UpdatePaymentUseCase/UpdatePaymentUseCase";
 import { CreateFreePaymentUseCase } from "@useCases/Payment/CreateFreePaymentUseCase/CreateFreePaymentUseCase";
+import { CreateTokenPaymentUseCase } from "@useCases/Payment/CreateTokenPaymentUseCase/CreateTokenPaymentUseCase";
 import { GetTicketsUseCase } from "@useCases/Ticket/GetTicketsUseCase/GetTicketsUseCase";
 import { IGetTicketsByWalletUseCase } from "@useCases/Ticket/GetTicketsByWalletUseCase.ts/interface";
 import { GetTicketsByWalletUseCase } from "@useCases/Ticket/GetTicketsByWalletUseCase.ts/GetTicketsByWalletUseCase";
@@ -31,6 +34,7 @@ import { IGetAllEventsUseCase } from "@useCases/Event/GetAllEventsUseCase/interf
 import { GetAllEventsUseCase } from "@useCases/Event/GetAllEventsUseCase/GetAllEventsUseCase";
 
 import { PaymentController } from "@controllers/PaymentController";
+import { TokenPaymentController } from "@controllers/TokenPaymentController";
 import { TicketController } from "@controllers/TicketController";
 import { EventController } from "@controllers/EventController";
 
@@ -45,6 +49,7 @@ export class Container {
   private WebhookService: IWebhookService;
 
   private PaymentRepository: IPaymentRepository;
+  private TokenPaymentRepository: ITokenPaymentRepository;
   private TicketCountRepository: TicketCountRepository;
   private TicketRepository: ITicketRepository;
   private EventRepository: IEventRepository;
@@ -52,6 +57,7 @@ export class Container {
   private CreatePaymentUseCase: CreatePaymentUseCase;
   private UpdatePaymentUseCase: UpdatePaymentUseCase;
   private CreateFreePaymentUseCase: CreateFreePaymentUseCase;
+  private CreateTokenPaymentUseCase: CreateTokenPaymentUseCase;
   private GetTicketsUseCase: GetTicketsUseCase;
   private GetTicketsByWalletUseCase: IGetTicketsByWalletUseCase;
   private GenerateEntryUseCase: IGenerateEntryUseCase;
@@ -59,6 +65,7 @@ export class Container {
   private GetAllEventsUseCase: IGetAllEventsUseCase;
 
   private PaymentController: PaymentController;
+  private TokenPaymentController: TokenPaymentController;
   private TicketController: TicketController;
   private EventController: EventController;
 
@@ -93,6 +100,7 @@ export class Container {
     this.WebhookService = new WebhookService(env, this.Logger);
 
     this.PaymentRepository = new PaymentDynamoRepository(this.Logger);
+    this.TokenPaymentRepository = new TokenPaymentDynamoRepository(this.Logger);
     this.TicketCountRepository = new TicketCountRepository(this.Logger);
     this.TicketRepository = new TicketDynamoRepository(this.Logger);
     this.EventRepository = new EventDynamoRepository(this.Logger);
@@ -112,6 +120,7 @@ export class Container {
       this.WebhookService,
       this.Logger
     );
+    this.CreateTokenPaymentUseCase = new CreateTokenPaymentUseCase(this.TokenPaymentRepository, this.MercadoPagoService, this.Logger);
     this.GetTicketsUseCase = new GetTicketsUseCase(this.S3Service, this.SolanaService);
     this.GetTicketsByWalletUseCase = new GetTicketsByWalletUseCase(this.TicketRepository);
     this.GenerateEntryUseCase = new GenerateEntryUseCase(this.TicketRepository, this.Logger);
@@ -119,6 +128,7 @@ export class Container {
     this.GetAllEventsUseCase = new GetAllEventsUseCase(this.EventRepository);
 
     this.PaymentController = new PaymentController(this.CreatePaymentUseCase, this.UpdatePaymentUseCase, this.CreateFreePaymentUseCase, this.Logger);
+    this.TokenPaymentController = new TokenPaymentController(this.CreateTokenPaymentUseCase, this.Logger);
     this.TicketController = new TicketController(this.GetTicketsUseCase, this.GetTicketsByWalletUseCase, this.GenerateEntryUseCase, this.Logger);
     this.EventController = new EventController(this.GetEventByIdUseCase, this.GetAllEventsUseCase);
   }
@@ -132,6 +142,10 @@ export class Container {
 
   public getPaymentController(): PaymentController {
     return this.PaymentController;
+  }
+
+  public getTokenPaymentController(): TokenPaymentController {
+    return this.TokenPaymentController;
   }
 
   public getTicketController(): TicketController {
