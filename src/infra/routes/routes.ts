@@ -7,6 +7,7 @@ const router = express.Router();
 const PaymentController = Container.getInstance().getPaymentController();
 const TicketController = Container.getInstance().getTicketController();
 const EventController = Container.getInstance().getEventController();
+const UserController = Container.getInstance().getUserController();
 
 router.post("/payments/create-payment-link", web3AuthMiddleware, (req, res) => PaymentController.CreatePayment(req, res));
 router.post("/payments/update-payment-callback", web3AuthMiddleware, (req, res) => PaymentController.UpdatePayment(req, res));
@@ -18,5 +19,7 @@ router.post("/tickets/generate-entry", web3AuthMiddleware, (req, res) => TicketC
 
 router.get("/events", (req, res) => EventController.GetAllEvents(req, res));
 router.get("/events/:id", (req, res) => EventController.GetEventById(req, res));
+
+router.post("/users/register", web3AuthMiddleware, (req, res) => UserController.RegisterUser(req, res));
 
 export { router };

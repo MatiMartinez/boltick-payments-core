@@ -16,6 +16,8 @@ import { ITicketRepository } from "@domain/repositories/ITicketRepository";
 import { TicketDynamoRepository } from "@repositories/TicketDynamoRepository";
 import { IEventRepository } from "@domain/repositories/IEventRepository";
 import { EventDynamoRepository } from "@repositories/EventDynamoRepository";
+import { IUserRepository } from "@domain/repositories/IUserRepository";
+import { UserDynamoRepository } from "@repositories/UserDynamoRepository";
 
 import { CreatePaymentUseCase } from "@useCases/Payment/CreatePaymentUseCase/CreatePaymentUseCase";
 import { UpdatePaymentUseCase } from "@useCases/Payment/UpdatePaymentUseCase/UpdatePaymentUseCase";
@@ -29,10 +31,12 @@ import { IGetEventByIdUseCase } from "@useCases/Event/GetEventByIdUseCase/interf
 import { GetEventByIdUseCase } from "@useCases/Event/GetEventByIdUseCase/GetEventByIdUseCase";
 import { IGetAllEventsUseCase } from "@useCases/Event/GetAllEventsUseCase/interface";
 import { GetAllEventsUseCase } from "@useCases/Event/GetAllEventsUseCase/GetAllEventsUseCase";
+import { RegisterUserUseCase } from "@useCases/User/RegisterUserUseCase/RegisterUserUseCase";
 
 import { PaymentController } from "@controllers/PaymentController";
 import { TicketController } from "@controllers/TicketController";
 import { EventController } from "@controllers/EventController";
+import { UserController } from "@controllers/UserController";
 
 export class Container {
   private static instance: Container;
@@ -48,6 +52,7 @@ export class Container {
   private TicketCountRepository: TicketCountRepository;
   private TicketRepository: ITicketRepository;
   private EventRepository: IEventRepository;
+  private UserRepository: IUserRepository;
 
   private CreatePaymentUseCase: CreatePaymentUseCase;
   private UpdatePaymentUseCase: UpdatePaymentUseCase;
@@ -57,10 +62,12 @@ export class Container {
   private GenerateEntryUseCase: IGenerateEntryUseCase;
   private GetEventByIdUseCase: IGetEventByIdUseCase;
   private GetAllEventsUseCase: IGetAllEventsUseCase;
+  private RegisterUserUseCase: RegisterUserUseCase;
 
   private PaymentController: PaymentController;
   private TicketController: TicketController;
   private EventController: EventController;
+  private UserController: UserController;
 
   private constructor() {
     const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN as string;
@@ -96,6 +103,7 @@ export class Container {
     this.TicketCountRepository = new TicketCountRepository(this.Logger);
     this.TicketRepository = new TicketDynamoRepository(this.Logger);
     this.EventRepository = new EventDynamoRepository(this.Logger);
+    this.UserRepository = new UserDynamoRepository(this.Logger);
 
     this.CreatePaymentUseCase = new CreatePaymentUseCase(
       this.PaymentRepository,
@@ -117,10 +125,12 @@ export class Container {
     this.GenerateEntryUseCase = new GenerateEntryUseCase(this.TicketRepository, this.Logger);
     this.GetEventByIdUseCase = new GetEventByIdUseCase(this.EventRepository);
     this.GetAllEventsUseCase = new GetAllEventsUseCase(this.EventRepository);
+    this.RegisterUserUseCase = new RegisterUserUseCase(this.UserRepository, this.Logger);
 
     this.PaymentController = new PaymentController(this.CreatePaymentUseCase, this.UpdatePaymentUseCase, this.CreateFreePaymentUseCase, this.Logger);
     this.TicketController = new TicketController(this.GetTicketsUseCase, this.GetTicketsByWalletUseCase, this.GenerateEntryUseCase, this.Logger);
     this.EventController = new EventController(this.GetEventByIdUseCase, this.GetAllEventsUseCase);
+    this.UserController = new UserController(this.RegisterUserUseCase, this.Logger);
   }
 
   public static getInstance(): Container {
@@ -140,5 +150,9 @@ export class Container {
 
   public getEventController(): EventController {
     return this.EventController;
+  }
+
+  public getUserController(): UserController {
+    return this.UserController;
   }
 }
