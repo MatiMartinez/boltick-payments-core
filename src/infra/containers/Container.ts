@@ -34,7 +34,6 @@ import { IGetAllEventsUseCase } from "@useCases/Event/GetAllEventsUseCase/interf
 import { GetAllEventsUseCase } from "@useCases/Event/GetAllEventsUseCase/GetAllEventsUseCase";
 
 import { PaymentController } from "@controllers/PaymentController";
-import { TokenPaymentController } from "@controllers/TokenPaymentController";
 import { TicketController } from "@controllers/TicketController";
 import { EventController } from "@controllers/EventController";
 
@@ -65,7 +64,6 @@ export class Container {
   private GetAllEventsUseCase: IGetAllEventsUseCase;
 
   private PaymentController: PaymentController;
-  private TokenPaymentController: TokenPaymentController;
   private TicketController: TicketController;
   private EventController: EventController;
 
@@ -127,8 +125,13 @@ export class Container {
     this.GetEventByIdUseCase = new GetEventByIdUseCase(this.EventRepository);
     this.GetAllEventsUseCase = new GetAllEventsUseCase(this.EventRepository);
 
-    this.PaymentController = new PaymentController(this.CreatePaymentUseCase, this.UpdatePaymentUseCase, this.CreateFreePaymentUseCase, this.Logger);
-    this.TokenPaymentController = new TokenPaymentController(this.CreateTokenPaymentUseCase, this.Logger);
+    this.PaymentController = new PaymentController(
+      this.CreatePaymentUseCase,
+      this.UpdatePaymentUseCase,
+      this.CreateFreePaymentUseCase,
+      this.CreateTokenPaymentUseCase,
+      this.Logger
+    );
     this.TicketController = new TicketController(this.GetTicketsUseCase, this.GetTicketsByWalletUseCase, this.GenerateEntryUseCase, this.Logger);
     this.EventController = new EventController(this.GetEventByIdUseCase, this.GetAllEventsUseCase);
   }
@@ -142,10 +145,6 @@ export class Container {
 
   public getPaymentController(): PaymentController {
     return this.PaymentController;
-  }
-
-  public getTokenPaymentController(): TokenPaymentController {
-    return this.TokenPaymentController;
   }
 
   public getTicketController(): TicketController {

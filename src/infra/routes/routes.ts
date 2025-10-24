@@ -5,12 +5,11 @@ import { web3AuthMiddleware } from "@middlewares/Web3AuthMiddleware";
 const router = express.Router();
 
 const PaymentController = Container.getInstance().getPaymentController();
-const TokenPaymentController = Container.getInstance().getTokenPaymentController();
 const TicketController = Container.getInstance().getTicketController();
 const EventController = Container.getInstance().getEventController();
 
 router.post("/payments/create-payment-link", web3AuthMiddleware, (req, res) => PaymentController.CreatePayment(req, res));
-router.post("/payments/create-token-payment", web3AuthMiddleware, (req, res) => TokenPaymentController.CreateTokenPayment(req, res));
+router.post("/payments/create-token-payment", web3AuthMiddleware, (req, res) => PaymentController.CreateTokenPayment(req, res));
 router.post("/payments/update-payment-callback", web3AuthMiddleware, (req, res) => PaymentController.UpdatePayment(req, res));
 // router.post("/payments/create-free-payment", (req, res) => PaymentController.CreateFreePayment(req, res));
 

@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { CreatePaymentUseCase } from "@useCases/Payment/CreatePaymentUseCase/CreatePaymentUseCase";
 import { UpdatePaymentUseCase } from "@useCases/Payment/UpdatePaymentUseCase/UpdatePaymentUseCase";
 import { CreateFreePaymentUseCase } from "@useCases/Payment/CreateFreePaymentUseCase/CreateFreePaymentUseCase";
+import { CreateTokenPaymentUseCase } from "@useCases/Payment/CreateTokenPaymentUseCase/CreateTokenPaymentUseCase";
 import { ILogger } from "@commons/Logger/interface";
 
 export class PaymentController {
@@ -10,6 +11,7 @@ export class PaymentController {
     private CreatePaymentUseCase: CreatePaymentUseCase,
     private UpdatePaymentUseCase: UpdatePaymentUseCase,
     private CreateFreePaymentUseCase: CreateFreePaymentUseCase,
+    private CreateTokenPaymentUseCase: CreateTokenPaymentUseCase,
     private Logger: ILogger
   ) {}
 
@@ -42,6 +44,17 @@ export class PaymentController {
     } catch (error) {
       const err = error as Error;
       this.Logger.error("[PaymentController] Error creating free payment:", { error: err.message });
+      res.status(400).json({ error: err.message });
+    }
+  }
+
+  async CreateTokenPayment(req: Request, res: Response): Promise<void> {
+    try {
+      const result = await this.CreateTokenPaymentUseCase.execute(req.body);
+      res.status(200).json(result);
+    } catch (error) {
+      const err = error as Error;
+      this.Logger.error("[PaymentController] Error creating token payment:", { error: err.message });
       res.status(400).json({ error: err.message });
     }
   }
