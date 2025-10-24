@@ -108,7 +108,8 @@ export class Container {
       this.TicketCountRepository,
       this.EventRepository,
       this.MercadoPagoService,
-      this.Logger
+      this.Logger,
+      appUrl
     );
     this.UpdatePaymentUseCase = new UpdatePaymentUseCase(this.PaymentRepository);
     this.CreateFreePaymentUseCase = new CreateFreePaymentUseCase(
@@ -118,7 +119,7 @@ export class Container {
       this.WebhookService,
       this.Logger
     );
-    this.CreateTokenPaymentUseCase = new CreateTokenPaymentUseCase(this.TokenPaymentRepository, this.MercadoPagoService, this.Logger);
+    this.CreateTokenPaymentUseCase = new CreateTokenPaymentUseCase(this.TokenPaymentRepository, this.MercadoPagoService, this.Logger, appUrl);
     this.GetTicketsUseCase = new GetTicketsUseCase(this.S3Service, this.SolanaService);
     this.GetTicketsByWalletUseCase = new GetTicketsByWalletUseCase(this.TicketRepository);
     this.GenerateEntryUseCase = new GenerateEntryUseCase(this.TicketRepository, this.Logger);
