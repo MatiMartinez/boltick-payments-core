@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@codegenie/serverless-express": "4.16.0",
+    "@solana/spl-token": "0.4.14",
+    "@solana/web3.js": "1.98.4",
     "aws-lambda": "1.0.7",
     "cors": "2.8.5",
     "date-fns-tz": "3.2.0",

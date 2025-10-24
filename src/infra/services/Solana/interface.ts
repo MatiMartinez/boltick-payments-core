@@ -1,5 +1,6 @@
 export interface ISolanaService {
   getMyNFTsFromWallet(walletAddress: string): Promise<UserNFT[]>;
+  getBOLTBalance(walletAddress: string): Promise<number>;
 }
 
 export interface UserNFT {

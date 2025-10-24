@@ -1,5 +1,5 @@
-import express from "express";
 import { Container } from "@containers/Container";
+import express from "express";
 import { web3AuthMiddleware } from "@middlewares/Web3AuthMiddleware";
 
 const router = express.Router();
@@ -7,6 +7,7 @@ const router = express.Router();
 const PaymentController = Container.getInstance().getPaymentController();
 const TicketController = Container.getInstance().getTicketController();
 const EventController = Container.getInstance().getEventController();
+const TokenController = Container.getInstance().getTokenController();
 
 router.post("/payments/create-payment-link", web3AuthMiddleware, (req, res) => PaymentController.CreatePayment(req, res));
 router.post("/payments/create-token-payment", web3AuthMiddleware, (req, res) => PaymentController.CreateTokenPayment(req, res));
@@ -19,5 +20,7 @@ router.post("/tickets/generate-entry", web3AuthMiddleware, (req, res) => TicketC
 
 router.get("/events", (req, res) => EventController.GetAllEvents(req, res));
 router.get("/events/:id", (req, res) => EventController.GetEventById(req, res));
+
+router.get("/tokens/balance/:walletAddress", web3AuthMiddleware, (req, res) => TokenController.GetTokenBalance(req, res));
 
 export { router };

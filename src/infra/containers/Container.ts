@@ -1,41 +1,40 @@
-import { ILogger } from "@commons/Logger/interface";
-import { Logger } from "@commons/Logger/Logger";
-
-import { IMercadoPagoService } from "@services/MercadoPago/interface";
-import { MercadoPagoService } from "@services/MercadoPago/MercadoPagoService";
-import { S3Service } from "@services/S3/S3Service";
-import { ISolanaService } from "@services/Solana/interface";
-import { SolanaService } from "@services/Solana/SolanaService";
-import { IWebhookService } from "@services/Webhook/interface";
-import { WebhookService } from "@services/Webhook/WebhookService";
-
-import { IPaymentRepository } from "@domain/repositories/IPaymentRepository";
-import { PaymentDynamoRepository } from "@repositories/PaymentDynamoRepository";
-import { ITokenPaymentRepository } from "@domain/repositories/ITokenPaymentRepository";
-import { TokenPaymentDynamoRepository } from "@repositories/TokenPaymentDynamoRepository";
-import { TicketCountRepository } from "@repositories/TicketCountRepository";
-import { ITicketRepository } from "@domain/repositories/ITicketRepository";
-import { TicketDynamoRepository } from "@repositories/TicketDynamoRepository";
-import { IEventRepository } from "@domain/repositories/IEventRepository";
-import { EventDynamoRepository } from "@repositories/EventDynamoRepository";
-
-import { CreatePaymentUseCase } from "@useCases/Payment/CreatePaymentUseCase/CreatePaymentUseCase";
-import { UpdatePaymentUseCase } from "@useCases/Payment/UpdatePaymentUseCase/UpdatePaymentUseCase";
 import { CreateFreePaymentUseCase } from "@useCases/Payment/CreateFreePaymentUseCase/CreateFreePaymentUseCase";
-import { CreateTokenPaymentUseCase } from "@useCases/Payment/CreateTokenPaymentUseCase/CreateTokenPaymentUseCase";
-import { GetTicketsUseCase } from "@useCases/Ticket/GetTicketsUseCase/GetTicketsUseCase";
-import { IGetTicketsByWalletUseCase } from "@useCases/Ticket/GetTicketsByWalletUseCase.ts/interface";
-import { GetTicketsByWalletUseCase } from "@useCases/Ticket/GetTicketsByWalletUseCase.ts/GetTicketsByWalletUseCase";
-import { IGenerateEntryUseCase } from "@useCases/Ticket/GenerateEntryUseCase/interface";
-import { GenerateEntryUseCase } from "@useCases/Ticket/GenerateEntryUseCase/GenerateEntryUseCase";
-import { IGetEventByIdUseCase } from "@useCases/Event/GetEventByIdUseCase/interface";
-import { GetEventByIdUseCase } from "@useCases/Event/GetEventByIdUseCase/GetEventByIdUseCase";
-import { IGetAllEventsUseCase } from "@useCases/Event/GetAllEventsUseCase/interface";
-import { GetAllEventsUseCase } from "@useCases/Event/GetAllEventsUseCase/GetAllEventsUseCase";
-
-import { PaymentController } from "@controllers/PaymentController";
-import { TicketController } from "@controllers/TicketController";
+import { CreatePaymentUseCase } from "@useCases/Payment/CreatePaymentUseCase/CreatePaymentUseCase";
 import { EventController } from "@controllers/EventController";
+import { EventDynamoRepository } from "@repositories/EventDynamoRepository";
+import { GenerateEntryUseCase } from "@useCases/Ticket/GenerateEntryUseCase/GenerateEntryUseCase";
+import { GetAllEventsUseCase } from "@useCases/Event/GetAllEventsUseCase/GetAllEventsUseCase";
+import { GetEventByIdUseCase } from "@useCases/Event/GetEventByIdUseCase/GetEventByIdUseCase";
+import { GetTicketsByWalletUseCase } from "@useCases/Ticket/GetTicketsByWalletUseCase.ts/GetTicketsByWalletUseCase";
+import { GetTicketsUseCase } from "@useCases/Ticket/GetTicketsUseCase/GetTicketsUseCase";
+import { GetTokenBalanceUseCase } from "@useCases/Token/GetTokenBalanceUseCase/GetTokenBalanceUseCase";
+import { IEventRepository } from "@domain/repositories/IEventRepository";
+import { IGenerateEntryUseCase } from "@useCases/Ticket/GenerateEntryUseCase/interface";
+import { IGetAllEventsUseCase } from "@useCases/Event/GetAllEventsUseCase/interface";
+import { IGetEventByIdUseCase } from "@useCases/Event/GetEventByIdUseCase/interface";
+import { IGetTicketsByWalletUseCase } from "@useCases/Ticket/GetTicketsByWalletUseCase.ts/interface";
+import { IGetTokenBalanceUseCase } from "@useCases/Token/GetTokenBalanceUseCase/interface";
+import { ILogger } from "@commons/Logger/interface";
+import { IMercadoPagoService } from "@services/MercadoPago/interface";
+import { IPaymentRepository } from "@domain/repositories/IPaymentRepository";
+import { ISolanaService } from "@services/Solana/interface";
+import { ITicketRepository } from "@domain/repositories/ITicketRepository";
+import { IWebhookService } from "@services/Webhook/interface";
+import { Logger } from "@commons/Logger/Logger";
+import { MercadoPagoService } from "@services/MercadoPago/MercadoPagoService";
+import { PaymentController } from "@controllers/PaymentController";
+import { PaymentDynamoRepository } from "@repositories/PaymentDynamoRepository";
+import { S3Service } from "@services/S3/S3Service";
+import { SolanaService } from "@services/Solana/SolanaService";
+import { TicketController } from "@controllers/TicketController";
+import { TicketCountRepository } from "@repositories/TicketCountRepository";
+import { TicketDynamoRepository } from "@repositories/TicketDynamoRepository";
+import { TokenController } from "@controllers/TokenController";
+import { UpdatePaymentUseCase } from "@useCases/Payment/UpdatePaymentUseCase/UpdatePaymentUseCase";
+import { WebhookService } from "@services/Webhook/WebhookService";
+import { ITokenPaymentRepository } from "@domain/repositories/ITokenPaymentRepository";
+import { CreateTokenPaymentUseCase } from "@useCases/Payment/CreateTokenPaymentUseCase/CreateTokenPaymentUseCase";
+import { TokenPaymentDynamoRepository } from "@repositories/TokenPaymentDynamoRepository";
 
 export class Container {
   private static instance: Container;
@@ -62,10 +61,12 @@ export class Container {
   private GenerateEntryUseCase: IGenerateEntryUseCase;
   private GetEventByIdUseCase: IGetEventByIdUseCase;
   private GetAllEventsUseCase: IGetAllEventsUseCase;
+  private GetTokenBalanceUseCase: IGetTokenBalanceUseCase;
 
   private PaymentController: PaymentController;
   private TicketController: TicketController;
   private EventController: EventController;
+  private TokenController: TokenController;
 
   private constructor() {
     const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN as string;
@@ -73,6 +74,8 @@ export class Container {
     const apiKey = process.env.SOLANA_API_KEY as string;
     const env = process.env.ENV as "QA" | "PROD";
     const web3AuthClientId = process.env.WEB3AUTH_CLIENT_ID as string;
+    const boltMintAddress = process.env.BOLT_MINT_ADDRESS as string;
+    const rpcBoltUrl = process.env.RPC_BOLT_URL as string;
 
     if (!accessToken) {
       throw new Error("Falta la variable de entorno MERCADOPAGO_ACCESS_TOKEN");
@@ -88,6 +91,12 @@ export class Container {
     }
     if (!web3AuthClientId) {
       throw new Error("Falta la variable de entorno WEB3AUTH_CLIENT_ID");
+    }
+    if (!boltMintAddress) {
+      throw new Error("Falta la variable de entorno BOLT_MINT_ADDRESS");
+    }
+    if (!rpcBoltUrl) {
+      throw new Error("Falta la variable de entorno RPC_BOLT_URL");
     }
 
     this.Logger = Logger.getInstance();
@@ -125,6 +134,7 @@ export class Container {
     this.GenerateEntryUseCase = new GenerateEntryUseCase(this.TicketRepository, this.Logger);
     this.GetEventByIdUseCase = new GetEventByIdUseCase(this.EventRepository);
     this.GetAllEventsUseCase = new GetAllEventsUseCase(this.EventRepository);
+    this.GetTokenBalanceUseCase = new GetTokenBalanceUseCase(this.SolanaService);
 
     this.PaymentController = new PaymentController(
       this.CreatePaymentUseCase,
@@ -135,6 +145,7 @@ export class Container {
     );
     this.TicketController = new TicketController(this.GetTicketsUseCase, this.GetTicketsByWalletUseCase, this.GenerateEntryUseCase, this.Logger);
     this.EventController = new EventController(this.GetEventByIdUseCase, this.GetAllEventsUseCase);
+    this.TokenController = new TokenController(this.GetTokenBalanceUseCase, this.Logger);
   }
 
   public static getInstance(): Container {
@@ -154,5 +165,9 @@ export class Container {
 
   public getEventController(): EventController {
     return this.EventController;
+  }
+
+  public getTokenController(): TokenController {
+    return this.TokenController;
   }
 }
