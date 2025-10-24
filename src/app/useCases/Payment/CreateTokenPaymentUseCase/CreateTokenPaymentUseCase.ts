@@ -6,11 +6,16 @@ import { IMercadoPagoService } from "@services/MercadoPago/interface";
 import { ILogger } from "@commons/Logger/interface";
 
 export class CreateTokenPaymentUseCase {
+  private appUrl: string;
+
   constructor(
     private TokenPaymentRepository: ITokenPaymentRepository,
     private MercadoPagoService: IMercadoPagoService,
-    private Logger: ILogger
-  ) {}
+    private Logger: ILogger,
+    appUrl: string
+  ) {
+    this.appUrl = appUrl;
+  }
 
   async execute(input: CreateTokenPaymentInput): Promise<CreateTokenPaymentOutput> {
     const currentTime = new Date().getTime();
@@ -43,6 +48,11 @@ export class CreateTokenPaymentUseCase {
           unit_price: 1,
         },
       ],
+      back_urls: {
+        failure: `${this.appUrl}/tokens/error`,
+        pending: `${this.appUrl}/tokens/processing`,
+        success: `${this.appUrl}/tokens/success`,
+      },
     });
 
     this.Logger.info(`[CreateTokenPaymentUseCase] Pago de tokens creado correctamente: ${link.url}`);

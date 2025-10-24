@@ -43,11 +43,7 @@ export class MercadoPagoService implements IMercadoPagoService {
   private generatePreference(input: GeneratePreferenceInput): GeneratePreferenceOutput {
     const { email, externalReference, items } = input;
     return {
-      back_urls: {
-        failure: `${this.appUrl}/payment/error`,
-        pending: `${this.appUrl}/payment/processing`,
-        success: `${this.appUrl}/payment/success`,
-      },
+      back_urls: input.back_urls,
       auto_return: "approved",
       external_reference: externalReference,
       items,

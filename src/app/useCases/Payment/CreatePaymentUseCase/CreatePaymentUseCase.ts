@@ -9,13 +9,18 @@ import { ILogger } from "@commons/Logger/interface";
 import { ITicketCountRepository } from "@domain/repositories/ITicketCountRepository";
 
 export class CreatePaymentUseCase {
+  private appUrl: string;
+
   constructor(
     private PaymentRepository: IPaymentRepository,
     private TicketCountRepository: ITicketCountRepository,
     private EventRepository: IEventRepository,
     private MercadoPagoService: IMercadoPagoService,
-    private Logger: ILogger
-  ) {}
+    private Logger: ILogger,
+    appUrl: string
+  ) {
+    this.appUrl = appUrl;
+  }
 
   async execute(input: CreatePaymentInput): Promise<CreatePaymentOutput> {
     const event = await this.EventRepository.findById(input.eventId);
@@ -53,6 +58,11 @@ export class CreatePaymentUseCase {
         quantity: nft.quantity,
         unit_price: nft.unitPrice,
       })),
+      back_urls: {
+        failure: `${this.appUrl}/payment/error`,
+        pending: `${this.appUrl}/payment/processing`,
+        success: `${this.appUrl}/payment/success`,
+      },
     });
 
     return { success: 1, message: "Pago creado correctamente", data: { url: link.url } };
