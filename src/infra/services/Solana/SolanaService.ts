@@ -1,15 +1,27 @@
+import { Connection, PublicKey } from "@solana/web3.js";
 import { ISolanaService, UserNFT } from "./interface";
+import { TOKEN_2022_PROGRAM_ID, getAccount, getAssociatedTokenAddress } from "@solana/spl-token";
 
 export class SolanaService implements ISolanaService {
   private rpcUrl: string;
   private creatorAddress: string;
+  private rpcBoltUrl: string;
+  private connection: Connection;
+  private boltMintAddress: string;
 
   constructor(apiKey: string) {
     this.rpcUrl = `https://mainnet.helius-rpc.com/?api-key=${apiKey}`;
+    this.rpcBoltUrl = process.env.RPC_BOLT_URL as string;
+    this.connection = new Connection(this.rpcBoltUrl, "confirmed");
 
     this.creatorAddress = process.env.CREATOR_PUBLIC_KEY as string;
     if (!this.creatorAddress) {
       throw new Error("CREATOR_PUBLIC_KEY environment variable is required");
+    }
+
+    this.boltMintAddress = process.env.BOLT_MINT_ADDRESS as string;
+    if (!this.boltMintAddress) {
+      throw new Error("BOLT_MINT_ADDRESS environment variable is required");
     }
   }
 
@@ -87,7 +99,9 @@ export class SolanaService implements ISolanaService {
       return false;
     }
 
-    const createdByMe = asset.creators.some((creator: any) => creator.address === this.creatorAddress && creator.share > 0);
+    const createdByMe = asset.creators.some(
+      (creator: any) => creator.address === this.creatorAddress && creator.share > 0
+    );
 
     if (createdByMe) {
       console.log(`Asset ${asset.id} was created by me`);
@@ -116,6 +130,50 @@ export class SolanaService implements ISolanaService {
       return regex.test(address);
     } catch {
       return false;
+    }
+  }
+
+  async getBOLTBalance(walletAddress: string): Promise<number> {
+    try {
+      console.log(`Getting BOLT balance for wallet: ${walletAddress}`);
+
+      if (!this.isValidSolanaAddress(walletAddress)) {
+        throw new Error("Invalid wallet address");
+      }
+
+      const walletPublicKey = new PublicKey(walletAddress);
+      const boltMintPublicKey = new PublicKey(this.boltMintAddress);
+
+      const associatedTokenAddress = await getAssociatedTokenAddress(
+        boltMintPublicKey,
+        walletPublicKey,
+        false,
+        TOKEN_2022_PROGRAM_ID
+      );
+
+      console.log(`Associated token address: ${associatedTokenAddress.toBase58()}`);
+
+      try {
+        const tokenAccount = await getAccount(
+          this.connection,
+          associatedTokenAddress,
+          undefined,
+          TOKEN_2022_PROGRAM_ID
+        );
+
+        const balance = Number(tokenAccount.amount) / Math.pow(10, 9);
+        const integerBalance = Math.floor(balance);
+
+        console.log(`BOLT balance: ${integerBalance}`);
+        return integerBalance;
+      } catch (error) {
+        console.log("Token account does not exist, balance is 0");
+        return 0;
+      }
+    } catch (error) {
+      const err = error as Error;
+      console.error(`Error getting BOLT balance: ${err.message}`);
+      throw new Error(`Error getting BOLT balance: ${err.message}`);
     }
   }
 
