@@ -1,8 +1,4 @@
-import {
-  ITransferTokensAndMintNFTUseCase,
-  ITransferTokensAndMintNFTUseCaseInput,
-  ITransferTokensAndMintNFTUseCaseOutput,
-} from "./interface";
+import { ITransferTokensAndMintNFTUseCase, ITransferTokensAndMintNFTUseCaseInput, ITransferTokensAndMintNFTUseCaseOutput, ITicketTypeInfo } from "./interface";
 
 import { ILogger } from "@commons/Logger/interface";
 import { ISQSService } from "@services/SQS/interface";
@@ -17,76 +13,77 @@ export class TransferTokensAndMintNFTUseCase implements ITransferTokensAndMintNF
     private logger: ILogger
   ) {}
 
-  async execute(
-    input: ITransferTokensAndMintNFTUseCaseInput
-  ): Promise<ITransferTokensAndMintNFTUseCaseOutput> {
+  async execute(input: ITransferTokensAndMintNFTUseCaseInput): Promise<ITransferTokensAndMintNFTUseCaseOutput> {
     try {
-      // Validar entrada
       this.validateInput(input);
 
       const currentTime = Date.now();
-      const transferId = uuid();
+      const transferIds: string[] = [];
+      let totalTickets = 0;
 
-      // Crear la entidad de transferencia
-      const transfer: TokenTransferEntity = {
-        id: transferId,
-        userId: input.userId,
-        walletAddress: input.walletAddress,
-        eventId: input.eventId,
-        tokenId: input.tokenId,
-        tokenAmount: input.tokenAmount,
-        transactionStatus: "Pending",
-        createdAt: currentTime,
-        updatedAt: currentTime,
-      };
+      // Procesar cada tipo de ticket
+      for (const ticketType of input.ticketTypes) {
+        // Crear una transferencia por cada tipo de ticket
+        for (let i = 0; i < ticketType.quantity; i++) {
+          const transferId = uuid();
+          transferIds.push(transferId);
+          totalTickets++;
 
-      // Guardar en DynamoDB
-      await this.tokenTransferRepository.create(transfer);
-      this.logger.info("[TransferTokensAndMintNFTUseCase] Transfer saved to database", {
-        transferId,
-      });
+          // Crear la entidad de transferencia
+          const transfer: TokenTransferEntity = {
+            id: transferId,
+            userId: input.userId,
+            walletAddress: input.walletAddress,
+            eventId: input.eventId,
+            tokenId: input.tokenId,
+            tokenAmount: input.tokenAmount,
+            transactionStatus: "Pending",
+            createdAt: currentTime,
+            updatedAt: currentTime,
+          };
 
-      // Preparar mensaje para SQS
-      // Este mensaje será consumido por otra Lambda Worker que ejecutará la transferencia real en Solana
-      const sqsMessage = {
-        transferId: transfer.id,
-        userId: transfer.userId,
-        walletAddress: transfer.walletAddress,
-        eventId: transfer.eventId,
-        ticketTypeId: input.ticketTypeId,
-      };
+          // Guardar en DynamoDB
+          await this.tokenTransferRepository.create(transfer);
+          this.logger.info("[TransferTokensAndMintNFTUseCase] Transfer saved to database", {
+            transferId,
+            ticketTypeId: ticketType.ticketTypeId,
+          });
 
-      // Enviar mensaje a SQS
-      // La otra Lambda Worker consumirá este mensaje y ejecutará la lógica de transfer + mint en Solana
-      await this.sqsService.sendMessage(
-        transfer.eventId, // MessageGroupId para FIFO queues
-        sqsMessage
-      );
+          // Preparar mensaje para SQS
+          const sqsMessage = {
+            transferId: transfer.id,
+            userId: transfer.userId,
+            walletAddress: transfer.walletAddress,
+            eventId: transfer.eventId,
+            ticketTypeId: ticketType.ticketTypeId,
+          };
 
-      this.logger.info(
-        "[TransferTokensAndMintNFTUseCase] Message sent to SQS for async processing",
-        {
-          transferId,
+          // Enviar mensaje a SQS
+          await this.sqsService.sendMessage(transfer.eventId, sqsMessage);
+
+          this.logger.info("[TransferTokensAndMintNFTUseCase] Message sent to SQS for async processing", {
+            transferId,
+            ticketTypeId: ticketType.ticketTypeId,
+          });
         }
-      );
+      }
 
       return {
         success: 1,
-        message: "Transferencia iniciada correctamente. El proceso se completará en breve.",
-        data: {
-          transferId,
-        },
+        message: `Transferencias iniciadas correctamente. Se procesarán ${totalTickets} tickets de ${
+          input.ticketTypes.length
+        } tipos diferentes. Transfer IDs: ${transferIds.join(", ")}`,
       };
     } catch (error) {
       const err = error as Error;
-      this.logger.error("[TransferTokensAndMintNFTUseCase] Error processing transfer", {
+      this.logger.error("[TransferTokensAndMintNFTUseCase] Error processing transfers", {
         error: err.message,
         input,
       });
 
       return {
         success: 0,
-        message: `Error al procesar la transferencia: ${err.message}`,
+        message: `Error al procesar las transferencias: ${err.message}`,
       };
     }
   }
@@ -103,6 +100,18 @@ export class TransferTokensAndMintNFTUseCase implements ITransferTokensAndMintNF
     }
     if (!input.tokenAmount || input.tokenAmount <= 0) {
       throw new Error("tokenAmount must be greater than 0");
+    }
+    if (!input.ticketTypes || !Array.isArray(input.ticketTypes) || input.ticketTypes.length === 0) {
+      throw new Error("ticketTypes must be a non-empty array");
+    }
+
+    for (const ticketType of input.ticketTypes) {
+      if (!ticketType.ticketTypeId) {
+        throw new Error("ticketTypeId is required for each ticket type");
+      }
+      if (!ticketType.quantity || ticketType.quantity <= 0) {
+        throw new Error("quantity must be greater than 0 for each ticket type");
+      }
     }
   }
 }
