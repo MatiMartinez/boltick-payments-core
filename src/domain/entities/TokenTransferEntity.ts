@@ -1,15 +1,14 @@
 export interface TokenTransferEntity {
   id: string;
-  userId: string;
-  walletAddress: string;
-  eventId: string;
-  tokenId: string;
-  tokenAmount: number;
-  transactionStatus: TransactionStatus;
-  transactionHash?: string;
-  sqsMessageId?: string;
   createdAt: number;
+  eventId: string;
+  nftAddress: string;
+  tokenAmount: number;
+  tokenId: string;
+  transactionHash: string;
+  transactionStatus: TransactionStatus;
   updatedAt: number;
+  walletAddress: string;
 }
 
 export type TransactionStatus = "Pending" | "Processing" | "Completed" | "Failed";

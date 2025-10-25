@@ -30,14 +30,15 @@ export class TransferTokensAndMintNFTUseCase implements ITransferTokensAndMintNF
       // Crear la entidad de transferencia
       const transfer: TokenTransferEntity = {
         id: transferId,
-        userId: input.userId,
-        walletAddress: input.walletAddress,
-        eventId: input.eventId,
-        tokenId: input.tokenId,
-        tokenAmount: input.tokenAmount,
-        transactionStatus: "Pending",
         createdAt: currentTime,
+        eventId: input.eventId,
+        nftAddress: "",
+        tokenAmount: input.tokenAmount,
+        tokenId: input.tokenId,
+        transactionHash: "",
+        transactionStatus: "Pending",
         updatedAt: currentTime,
+        walletAddress: input.walletAddress,
       };
 
       // Guardar en DynamoDB
@@ -50,10 +51,6 @@ export class TransferTokensAndMintNFTUseCase implements ITransferTokensAndMintNF
       // Este mensaje será consumido por otra Lambda Worker que ejecutará la transferencia real en Solana
       const sqsMessage = {
         transferId: transfer.id,
-        userId: transfer.userId,
-        walletAddress: transfer.walletAddress,
-        eventId: transfer.eventId,
-        ticketTypeId: input.ticketTypeId,
       };
 
       // Enviar mensaje a SQS
