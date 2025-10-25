@@ -1,10 +1,4 @@
-import {
-  ITicketTypeInfo,
-  ITransferTokensAndMintNFTUseCase,
-  ITransferTokensAndMintNFTUseCaseInput,
-  ITransferTokensAndMintNFTUseCaseOutput,
-} from "./interface";
-
+import { ITransferTokensAndMintNFTUseCase, ITransferTokensAndMintNFTUseCaseInput, ITransferTokensAndMintNFTUseCaseOutput } from "./interface";
 import { ILogger } from "@commons/Logger/interface";
 import { ISQSService } from "@services/SQS/interface";
 import { ITokenTransferRepository } from "@domain/repositories/ITokenTransferRepository";
@@ -18,9 +12,7 @@ export class TransferTokensAndMintNFTUseCase implements ITransferTokensAndMintNF
     private logger: ILogger
   ) {}
 
-  async execute(
-    input: ITransferTokensAndMintNFTUseCaseInput
-  ): Promise<ITransferTokensAndMintNFTUseCaseOutput> {
+  async execute(input: ITransferTokensAndMintNFTUseCaseInput): Promise<ITransferTokensAndMintNFTUseCaseOutput> {
     try {
       this.validateInput(input);
 
@@ -39,15 +31,15 @@ export class TransferTokensAndMintNFTUseCase implements ITransferTokensAndMintNF
           // Crear la entidad de transferencia
           const transfer: TokenTransferEntity = {
             id: transferId,
-            walletAddress: input.walletAddress,
-            eventId: input.eventId,
-            tokenId: input.tokenId,
-            tokenAmount: ticketType.tokenAmount,
-            transactionStatus: "Pending",
             createdAt: currentTime,
-            updatedAt: currentTime,
+            eventId: input.eventId,
             nftAddress: "",
+            tokenAmount: ticketType.tokenAmount,
+            tokenId: input.tokenId,
             transactionHash: "",
+            transactionStatus: "Pending",
+            updatedAt: currentTime,
+            walletAddress: input.walletAddress,
           };
 
           // Guardar en DynamoDB
@@ -64,14 +56,10 @@ export class TransferTokensAndMintNFTUseCase implements ITransferTokensAndMintNF
 
           // Enviar mensaje a SQS
           await this.sqsService.sendMessage(transfer.eventId, sqsMessage);
-
-          this.logger.info(
-            "[TransferTokensAndMintNFTUseCase] Message sent to SQS for async processing",
-            {
-              transferId,
-              ticketTypeId: ticketType.ticketTypeId,
-            }
-          );
+          this.logger.info("[TransferTokensAndMintNFTUseCase] Message sent to SQS for async processing", {
+            transferId,
+            ticketTypeId: ticketType.ticketTypeId,
+          });
         }
       }
 
@@ -99,12 +87,11 @@ export class TransferTokensAndMintNFTUseCase implements ITransferTokensAndMintNF
     if (!input.walletAddress) {
       throw new Error("walletAddress is required");
     }
+
     if (!input.eventId) {
       throw new Error("eventId is required");
     }
-    if (!input.ticketTypes.some((ticket) => ticket.tokenAmount <= 0)) {
-      throw new Error("tokenAmount must be greater than 0");
-    }
+
     if (!input.ticketTypes || !Array.isArray(input.ticketTypes) || input.ticketTypes.length === 0) {
       throw new Error("ticketTypes must be a non-empty array");
     }
@@ -113,8 +100,13 @@ export class TransferTokensAndMintNFTUseCase implements ITransferTokensAndMintNF
       if (!ticketType.ticketTypeId) {
         throw new Error("ticketTypeId is required for each ticket type");
       }
+
       if (!ticketType.quantity || ticketType.quantity <= 0) {
         throw new Error("quantity must be greater than 0 for each ticket type");
+      }
+
+      if (!ticketType.tokenAmount || ticketType.tokenAmount <= 0) {
+        throw new Error("tokenAmount must be greater than 0 for each ticket type");
       }
     }
   }
