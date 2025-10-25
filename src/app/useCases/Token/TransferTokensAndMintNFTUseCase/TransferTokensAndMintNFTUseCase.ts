@@ -42,7 +42,7 @@ export class TransferTokensAndMintNFTUseCase implements ITransferTokensAndMintNF
             walletAddress: input.walletAddress,
             eventId: input.eventId,
             tokenId: input.tokenId,
-            tokenAmount: input.tokenAmount,
+            tokenAmount: ticketType.tokenAmount,
             transactionStatus: "Pending",
             createdAt: currentTime,
             updatedAt: currentTime,
@@ -96,16 +96,13 @@ export class TransferTokensAndMintNFTUseCase implements ITransferTokensAndMintNF
   }
 
   private validateInput(input: ITransferTokensAndMintNFTUseCaseInput): void {
-    if (!input.userId) {
-      throw new Error("userId is required");
-    }
     if (!input.walletAddress) {
       throw new Error("walletAddress is required");
     }
     if (!input.eventId) {
       throw new Error("eventId is required");
     }
-    if (!input.tokenAmount || input.tokenAmount <= 0) {
+    if (!input.ticketTypes.some((ticket) => ticket.tokenAmount <= 0)) {
       throw new Error("tokenAmount must be greater than 0");
     }
     if (!input.ticketTypes || !Array.isArray(input.ticketTypes) || input.ticketTypes.length === 0) {

@@ -1,19 +1,20 @@
 export interface ITransferTokensAndMintNFTUseCase {
-  execute(input: ITransferTokensAndMintNFTUseCaseInput): Promise<ITransferTokensAndMintNFTUseCaseOutput>;
+  execute(
+    input: ITransferTokensAndMintNFTUseCaseInput
+  ): Promise<ITransferTokensAndMintNFTUseCaseOutput>;
 }
 
 export interface ITransferTokensAndMintNFTUseCaseInput {
-  userId: string;
-  walletAddress: string;
   eventId: string;
-  tokenId: string;
-  tokenAmount: number;
   ticketTypes: ITicketTypeInfo[];
+  tokenId: string;
+  walletAddress: string;
 }
 
 export interface ITicketTypeInfo {
-  ticketTypeId: string;
   quantity: number;
+  ticketTypeId: string;
+  tokenAmount: number;
 }
 
 export interface ITransferTokensAndMintNFTUseCaseOutput {
