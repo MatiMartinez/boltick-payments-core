@@ -8,17 +8,21 @@ import { ISolanaService } from "@services/Solana/interface";
 import { SolanaService } from "@services/Solana/SolanaService";
 import { IWebhookService } from "@services/Webhook/interface";
 import { WebhookService } from "@services/Webhook/WebhookService";
+import { ISQSService } from "@services/SQS/interface";
+import { SQSService } from "@services/SQS/SQSService";
 
 // Repositories
 import { IEventRepository } from "@domain/repositories/IEventRepository";
 import { IPaymentRepository } from "@domain/repositories/IPaymentRepository";
 import { ITicketRepository } from "@domain/repositories/ITicketRepository";
 import { ITokenPaymentRepository } from "@domain/repositories/ITokenPaymentRepository";
+import { ITokenTransferRepository } from "@domain/repositories/ITokenTransferRepository";
 import { EventDynamoRepository } from "@repositories/EventDynamoRepository";
 import { PaymentDynamoRepository } from "@repositories/PaymentDynamoRepository";
 import { TicketCountRepository } from "@repositories/TicketCountRepository";
 import { TicketDynamoRepository } from "@repositories/TicketDynamoRepository";
 import { TokenPaymentDynamoRepository } from "@repositories/TokenPaymentDynamoRepository";
+import { TokenTransferDynamoRepository } from "@repositories/TokenTransferDynamoRepository";
 
 // Use Cases
 import { CreateFreePaymentUseCase } from "@useCases/Payment/CreateFreePaymentUseCase/CreateFreePaymentUseCase";
@@ -32,6 +36,8 @@ import { GetTicketsByWalletUseCase } from "@useCases/Ticket/GetTicketsByWalletUs
 import { GetTicketsUseCase } from "@useCases/Ticket/GetTicketsUseCase/GetTicketsUseCase";
 import { IGetTokenBalanceUseCase } from "@useCases/Token/GetTokenBalanceUseCase/interface";
 import { GetTokenBalanceUseCase } from "@useCases/Token/GetTokenBalanceUseCase/GetTokenBalanceUseCase";
+import { ITransferTokensAndMintNFTUseCase } from "@useCases/Token/TransferTokensAndMintNFTUseCase/interface";
+import { TransferTokensAndMintNFTUseCase } from "@useCases/Token/TransferTokensAndMintNFTUseCase/TransferTokensAndMintNFTUseCase";
 import { IGenerateEntryUseCase } from "@useCases/Ticket/GenerateEntryUseCase/interface";
 import { IGetAllEventsUseCase } from "@useCases/Event/GetAllEventsUseCase/interface";
 import { IGetEventByIdUseCase } from "@useCases/Event/GetEventByIdUseCase/interface";
@@ -52,6 +58,7 @@ export class Container {
   private S3Service: S3Service;
   private SolanaService: ISolanaService;
   private WebhookService: IWebhookService;
+  private SQSService: ISQSService;
 
   // Repositories
   private EventRepository: IEventRepository;
@@ -59,6 +66,7 @@ export class Container {
   private TicketCountRepository: TicketCountRepository;
   private TicketRepository: ITicketRepository;
   private TokenPaymentRepository: ITokenPaymentRepository;
+  private TokenTransferRepository: ITokenTransferRepository;
 
   // Use Cases
   private CreateFreePaymentUseCase: CreateFreePaymentUseCase;
@@ -71,6 +79,7 @@ export class Container {
   private GetTicketsByWalletUseCase: IGetTicketsByWalletUseCase;
   private GetTicketsUseCase: GetTicketsUseCase;
   private GetTokenBalanceUseCase: IGetTokenBalanceUseCase;
+  private TransferTokensAndMintNFTUseCase: ITransferTokensAndMintNFTUseCase;
 
   // Controllers
   private EventController: EventController;
@@ -86,6 +95,7 @@ export class Container {
     const web3AuthClientId = process.env.WEB3AUTH_CLIENT_ID as string;
     const boltMintAddress = process.env.BOLT_MINT_ADDRESS as string;
     const rpcBoltUrl = process.env.RPC_BOLT_URL as string;
+    const sqsQueueUrl = process.env.SQS_QUEUE_URL as string;
 
     if (!accessToken) {
       throw new Error("Falta la variable de entorno MERCADOPAGO_ACCESS_TOKEN");
@@ -108,6 +118,9 @@ export class Container {
     if (!rpcBoltUrl) {
       throw new Error("Falta la variable de entorno RPC_BOLT_URL");
     }
+    if (!sqsQueueUrl) {
+      throw new Error("Falta la variable de entorno SQS_QUEUE_URL");
+    }
 
     // Initialize Services
     this.Logger = Logger.getInstance();
@@ -115,6 +128,7 @@ export class Container {
     this.S3Service = new S3Service();
     this.SolanaService = new SolanaService(apiKey);
     this.WebhookService = new WebhookService(env, this.Logger);
+    this.SQSService = new SQSService(sqsQueueUrl, this.Logger);
 
     // Initialize Repositories
     this.EventRepository = new EventDynamoRepository(this.Logger);
@@ -122,6 +136,7 @@ export class Container {
     this.TicketCountRepository = new TicketCountRepository(this.Logger);
     this.TicketRepository = new TicketDynamoRepository(this.Logger);
     this.TokenPaymentRepository = new TokenPaymentDynamoRepository(this.Logger);
+    this.TokenTransferRepository = new TokenTransferDynamoRepository(this.Logger);
 
     // Initialize Use Cases
     this.CreateFreePaymentUseCase = new CreateFreePaymentUseCase(
@@ -139,7 +154,12 @@ export class Container {
       this.Logger,
       appUrl
     );
-    this.CreateTokenPaymentUseCase = new CreateTokenPaymentUseCase(this.TokenPaymentRepository, this.MercadoPagoService, this.Logger, appUrl);
+    this.CreateTokenPaymentUseCase = new CreateTokenPaymentUseCase(
+      this.TokenPaymentRepository,
+      this.MercadoPagoService,
+      this.Logger,
+      appUrl
+    );
     this.UpdatePaymentUseCase = new UpdatePaymentUseCase(this.PaymentRepository);
 
     this.GetAllEventsUseCase = new GetAllEventsUseCase(this.EventRepository);
@@ -150,6 +170,11 @@ export class Container {
     this.GetTicketsUseCase = new GetTicketsUseCase(this.S3Service, this.SolanaService);
 
     this.GetTokenBalanceUseCase = new GetTokenBalanceUseCase(this.SolanaService);
+    this.TransferTokensAndMintNFTUseCase = new TransferTokensAndMintNFTUseCase(
+      this.TokenTransferRepository,
+      this.SQSService,
+      this.Logger
+    );
 
     // Initialize Controllers
     this.EventController = new EventController(this.GetEventByIdUseCase, this.GetAllEventsUseCase);
@@ -160,8 +185,17 @@ export class Container {
       this.CreateTokenPaymentUseCase,
       this.Logger
     );
-    this.TicketController = new TicketController(this.GetTicketsUseCase, this.GetTicketsByWalletUseCase, this.GenerateEntryUseCase, this.Logger);
-    this.TokenController = new TokenController(this.GetTokenBalanceUseCase, this.Logger);
+    this.TicketController = new TicketController(
+      this.GetTicketsUseCase,
+      this.GetTicketsByWalletUseCase,
+      this.GenerateEntryUseCase,
+      this.Logger
+    );
+    this.TokenController = new TokenController(
+      this.GetTokenBalanceUseCase,
+      this.TransferTokensAndMintNFTUseCase,
+      this.Logger
+    );
   }
 
   public static getInstance(): Container {

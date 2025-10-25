@@ -22,5 +22,6 @@ router.get("/events", (req, res) => EventController.GetAllEvents(req, res));
 router.get("/events/:id", (req, res) => EventController.GetEventById(req, res));
 
 router.get("/tokens/balance/:walletAddress", web3AuthMiddleware, (req, res) => TokenController.GetTokenBalance(req, res));
+router.post("/tokens/transfer-and-mint", web3AuthMiddleware, (req, res) => TokenController.TransferTokensAndMintNFT(req, res));
 
 export { router };
