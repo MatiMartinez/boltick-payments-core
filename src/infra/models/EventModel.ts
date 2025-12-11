@@ -9,15 +9,6 @@ const ArtistSchema = new dynamoose.Schema({
   name: { type: String, required: true },
 });
 
-const PRSchema = new dynamoose.Schema({
-  id: { type: String, required: true },
-  email: { type: String, required: true },
-  name: { type: String, required: true },
-  phone: { type: String, required: true },
-  photo: { type: String, required: true },
-  slug: { type: String, required: true },
-});
-
 const TicketSchema = new dynamoose.Schema({
   id: { type: String, required: true },
   availableTickets: { type: Number, required: true },
@@ -44,7 +35,7 @@ const EventSchema = new dynamoose.Schema({
   location: { type: String, required: true },
   locationLink: { type: String, required: true },
   name: { type: String, required: true },
-  prs: { type: Array, schema: [{ type: Object, schema: PRSchema }] },
+  producer: { type: String, required: true, index: { name: "producerIndex" } },
   startDate: { type: Number, required: true },
   tickets: { type: Array, schema: [{ type: Object, schema: TicketSchema }] },
   time: { type: String, required: true },

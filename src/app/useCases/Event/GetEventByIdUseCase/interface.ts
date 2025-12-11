@@ -14,6 +14,16 @@ export interface IGetEventByIdUseCaseOutput {
   data?: EventWithStatus;
 }
 
+export interface PR {
+  id: string;
+  email: string;
+  name: string;
+  phone: string;
+  photo: string;
+  slug: string;
+}
+
 export interface EventWithStatus extends EventEntity {
+  prs: PR[];
   isActive: number;
 }

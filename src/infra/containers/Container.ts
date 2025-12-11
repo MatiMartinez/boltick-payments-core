@@ -10,12 +10,14 @@ import { IWebhookService } from "@services/Webhook/interface";
 import { WebhookService } from "@services/Webhook/WebhookService";
 
 import { IPaymentRepository } from "@domain/repositories/IPaymentRepository";
-import { PaymentDynamoRepository } from "@repositories/PaymentDynamoRepository";
-import { TicketCountRepository } from "@repositories/TicketCountRepository";
+import { IPRRepository } from "@domain/repositories/IPRRepository";
 import { ITicketRepository } from "@domain/repositories/ITicketRepository";
-import { TicketDynamoRepository } from "@repositories/TicketDynamoRepository";
 import { IEventRepository } from "@domain/repositories/IEventRepository";
 import { EventDynamoRepository } from "@repositories/EventDynamoRepository";
+import { PaymentDynamoRepository } from "@repositories/PaymentDynamoRepository";
+import { PRDynamoRepository } from "@repositories/PRDynamoRepository";
+import { TicketCountRepository } from "@repositories/TicketCountRepository";
+import { TicketDynamoRepository } from "@repositories/TicketDynamoRepository";
 
 import { CreatePaymentUseCase } from "@useCases/Payment/CreatePaymentUseCase/CreatePaymentUseCase";
 import { UpdatePaymentUseCase } from "@useCases/Payment/UpdatePaymentUseCase/UpdatePaymentUseCase";
@@ -45,6 +47,7 @@ export class Container {
   private WebhookService: IWebhookService;
 
   private PaymentRepository: IPaymentRepository;
+  private PRRepository: IPRRepository;
   private TicketCountRepository: TicketCountRepository;
   private TicketRepository: ITicketRepository;
   private EventRepository: IEventRepository;
@@ -67,7 +70,6 @@ export class Container {
     const appUrl = process.env.APP_URL as string;
     const apiKey = process.env.SOLANA_API_KEY as string;
     const env = process.env.ENV as "QA" | "PROD";
-    const web3AuthClientId = process.env.WEB3AUTH_CLIENT_ID as string;
 
     if (!accessToken) {
       throw new Error("Falta la variable de entorno MERCADOPAGO_ACCESS_TOKEN");
@@ -81,9 +83,6 @@ export class Container {
     if (!env) {
       throw new Error("Falta la variable de entorno ENV");
     }
-    if (!web3AuthClientId) {
-      throw new Error("Falta la variable de entorno WEB3AUTH_CLIENT_ID");
-    }
 
     this.Logger = Logger.getInstance();
 
@@ -93,6 +92,7 @@ export class Container {
     this.WebhookService = new WebhookService(env, this.Logger);
 
     this.PaymentRepository = new PaymentDynamoRepository(this.Logger);
+    this.PRRepository = new PRDynamoRepository(this.Logger);
     this.TicketCountRepository = new TicketCountRepository(this.Logger);
     this.TicketRepository = new TicketDynamoRepository(this.Logger);
     this.EventRepository = new EventDynamoRepository(this.Logger);
@@ -112,15 +112,17 @@ export class Container {
       this.WebhookService,
       this.Logger
     );
-    this.GetTicketsUseCase = new GetTicketsUseCase(this.S3Service, this.SolanaService);
-    this.GetTicketsByWalletUseCase = new GetTicketsByWalletUseCase(this.TicketRepository);
-    this.GenerateEntryUseCase = new GenerateEntryUseCase(this.TicketRepository, this.Logger);
-    this.GetEventByIdUseCase = new GetEventByIdUseCase(this.EventRepository);
-    this.GetAllEventsUseCase = new GetAllEventsUseCase(this.EventRepository);
 
+    this.GetAllEventsUseCase = new GetAllEventsUseCase(this.EventRepository);
+    this.GetEventByIdUseCase = new GetEventByIdUseCase(this.EventRepository, this.PRRepository);
+
+    this.GenerateEntryUseCase = new GenerateEntryUseCase(this.TicketRepository, this.Logger);
+    this.GetTicketsByWalletUseCase = new GetTicketsByWalletUseCase(this.TicketRepository);
+    this.GetTicketsUseCase = new GetTicketsUseCase(this.S3Service, this.SolanaService);
+
+    this.EventController = new EventController(this.GetEventByIdUseCase, this.GetAllEventsUseCase);
     this.PaymentController = new PaymentController(this.CreatePaymentUseCase, this.UpdatePaymentUseCase, this.CreateFreePaymentUseCase, this.Logger);
     this.TicketController = new TicketController(this.GetTicketsUseCase, this.GetTicketsByWalletUseCase, this.GenerateEntryUseCase, this.Logger);
-    this.EventController = new EventController(this.GetEventByIdUseCase, this.GetAllEventsUseCase);
   }
 
   public static getInstance(): Container {
