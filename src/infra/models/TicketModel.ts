@@ -26,6 +26,9 @@ const TicketSchema = new dynamoose.Schema({
 
   entryCode: { type: String, required: true },
   entryCodeExpiresAt: { type: Number, required: true },
+
+  category: { type: String, required: true },
+  eventIdCategoryIndex: { type: String, required: true, index: { name: "eventIdCategoryIndex", rangeKey: "createdAt" } },
 });
 
 const tableName = `TICKETS_${process.env.ENV}`;

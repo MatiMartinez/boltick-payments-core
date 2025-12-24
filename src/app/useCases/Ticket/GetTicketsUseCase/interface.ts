@@ -8,4 +8,4 @@ export interface GetTicketsOutput {
   tickets: UserTicket[];
 }
 
-export type UserTicket = Omit<TicketEntity, "metadataUrl" | "walletAddress" | "entryCode" | "entryCodeExpiresAt">;
+export type UserTicket = Omit<TicketEntity, "metadataUrl" | "walletAddress" | "entryCode" | "entryCodeExpiresAt" | "category" | "eventIdCategoryIndex">;
